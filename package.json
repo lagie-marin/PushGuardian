@@ -1,0 +1,39 @@
+{
+    "name": "pushguardian",
+    "version": "1.0.0",
+    "bin": {
+        "pushguardian": "src/cli/index.js"
+    },
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "start": "node src/cli/index.js",
+        "dev": "node src/cli/index.js --help"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@eslint/markdown": "^7.3.0",
+        "eslint": "^9.36.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-json": "^4.0.1",
+        "eslint-plugin-prettier": "^5.5.4",
+        "globals": "^16.4.0",
+        "jest": "^30.1.3",
+        "prettier": "^3.6.2"
+    },
+    "dependencies": {
+        "chalk": "5.6.2",
+        "commander": "^14.0.1",
+        "execa": "^9.6.0",
+        "simple-git": "^3.28.0"
+    },
+    "jest": {
+        "transformIgnorePatterns": [
+            "node_modules/(?!chalk/)"
+        ]
+    }
+}
