@@ -20,7 +20,6 @@ fs.readdirSync(commandsDir).forEach((file) => {
     if (command.options) {
         command.options.forEach((opt) => cmd.option(opt.flags, opt.description));
     }
-
     cmd.action(command.action);
 });
 

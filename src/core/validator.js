@@ -15,7 +15,7 @@ async function validateCode(argument = {}, options = {}) {
             if (options.fix) eslintArgs.push('--fix');
             if (options.strict) eslintArgs.push('--max-warnings=0');
 
-            if (directories.length === 0) {
+            if (!directories || directories.length === 0) {
                 console.error('❌ Aucun dossier à valider. Vérifiez votre configuration.');
                 process.exit(1);
             }

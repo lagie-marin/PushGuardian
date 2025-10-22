@@ -301,7 +301,7 @@ describe('Constraint Engine', () => {
                     noSpecialChars: true,
                     maxLength: 50,
                     minLength: 5,
-                    disallowedWords: ['spam', 'ads', 'promotion'],
+                    disallowedWords: ['spam', 'ads', 'promotion']
                 }
             };
 

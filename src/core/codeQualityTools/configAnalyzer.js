@@ -6,7 +6,8 @@ const {
     generateMarkdownCode,
     generateTypeScriptCode,
     generateJSONCode,
-    generateJavaScriptCode
+    generateJavaScriptCode,
+    generateNuxtCode
 } = require('./configGenerator');
 
 async function analyzeExistingConfig() {
@@ -66,11 +67,33 @@ async function updateEslintConfig(selectedTools, existingAnalysis) {
 
 async function createNewConfig(selectedTools) {
     const configGenerator = require('./configGenerator');
-    const imports = configGenerator.generateImports(selectedTools, new Set());
-    const newConfigs = configGenerator.generateNewConfigs(selectedTools, new Set(), new Set());
 
-    const configContent = configGenerator.buildNewConfigContent(imports, newConfigs);
+    const existingAnalysis = {
+        plugins: new Set(),
+        filePatterns: new Set(),
+        configContent: []
+    };
+
+    const imports = configGenerator.generateImports(selectedTools, existingAnalysis.plugins);
+    const newConfigs = configGenerator.generateNewConfigs(
+        selectedTools,
+        existingAnalysis.plugins,
+        existingAnalysis.filePatterns
+    );
+
+    const configContent = `${imports}
+
+module.exports = [
+  js.configs.recommended,
+  {
+    ignores: ['node_modules/', 'dist/', 'build/', '**/*.json', '**/*.md'],
+  },
+${newConfigs.join(',\n')}
+];
+`;
+
     fs.writeFileSync('eslint.config.js', configContent);
+    console.log(chalk.green('📄 Nouvelle configuration ESLint créée avec les plugins sélectionnés'));
 }
 
 function addMissingConfigs(content, selectedTools, existingAnalysis) {
@@ -80,7 +103,8 @@ function addMissingConfigs(content, selectedTools, existingAnalysis) {
         'JSON (ESLint Plugin)': generateJSONCode,
         'Markdown (ESLint Plugin)': generateMarkdownCode,
         'YAML (ESLint Plugin)': generateYAMLCode,
-        'HTML (ESLint Plugin)': generateHTMLCode
+        'HTML (ESLint Plugin)': generateHTMLCode,
+        'Nuxt (ESLint Plugin)': generateNuxtCode
     };
 
     let newConfigsCode = [];
@@ -148,6 +172,10 @@ function addMissingImports(content, selectedTools, existingPlugins) {
         'HTML (ESLint Plugin)': {
             condition: !existingPlugins.has('html'),
             code: `const html = require('eslint-plugin-html');\n`
+        },
+        'Nuxt (ESLint Plugin)': {
+            condition: !existingPlugins.has('nuxt'),
+            code: `const nuxt = require('eslint-plugin-nuxt');\n`
         }
     };
 

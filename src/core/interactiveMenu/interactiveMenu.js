@@ -54,6 +54,9 @@ module.exports = (message, choices, preselected = []) => {
                 const selectedChoices = choiseMap.map((index) => choices[index]);
                 resolve(selectedChoices);
             }
+            process.stdin.removeListener('data', handleInput);
+            process.stdin.setRawMode(false);
+            process.stdin.pause();
         };
 
         process.stdin.setRawMode(true);

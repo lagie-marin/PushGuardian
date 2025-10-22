@@ -8,14 +8,21 @@ if (!CONFIG_PATH.startsWith(process.cwd())) {
     process.exit(1);
 }
 
-function loadConfig() {
-    if (!fs.existsSync(CONFIG_PATH)) {
-        console.error('❌ Fichier de configuration introuvable.');
-        process.exit(1);
+function loadConfig(configPath = CONFIG_PATH) {
+    if (!fs.existsSync(configPath)) {
+        const defaultConfig = {};
+
+        try {
+            fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 4));
+            return defaultConfig;
+        } catch (error) {
+            console.error('❌ Erreur lors de la création du fichier de configuration:', error.message);
+            process.exit(1);
+        }
     }
 
     try {
-        const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
         return config;
     } catch (error) {
         console.error('❌ Erreur lors du chargement de la configuration:', error.message);

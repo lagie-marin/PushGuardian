@@ -87,6 +87,7 @@ Lance un menu interactif pour installer :
 
 * **Hooks Git** : Configure les hooks Git automatiquement
 * **Code Quality Tools** : Installe et configure ESLint, Prettier, etc.
+* **Mirroring** : Configure le système de mirroring multi-plateformes
 
 Options:
 * `--force`: Force l'installation même si les hooks existent déjà
@@ -104,7 +105,33 @@ Options :
 * `**--verbose**` : Affiche plus de détails
 * `**--hooks <hook>**` : Valide spécifiquement certains hooks
 
-### **3. Gestion de Configuration**
+### **3. Mirroring de Référentiels**
+
+```bash
+npx pushguardian mirror
+```
+Effectue le mirroring d'un référentiel source vers une plateforme cible (GitHub, GitLab, BitBucket, Azure DevOps).
+
+Options :
+* `--source <platform>` : Plateforme source (github, gitlab, bitbucket, azure)
+* `--target <platform>` : Plateforme cible (github, gitlab, bitbucket, azure)
+* `--repo <name>` : Nom du référentiel source (et cible si --target-repo non spécifié)
+* `--source-repo <name>` : Nom du référentiel source
+* `--target-repo <name>` : Nom du référentiel cible
+* `--source-owner <owner>` : Propriétaire du référentiel source (requis pour GitHub)
+* `--target-owner <owner>` : Propriétaire du référentiel cible (requis pour GitHub)
+* `--sync-branches` : Active la synchronisation des branches
+* `--public-repo` : Visibilité du mirroir en public
+* `--generate` : Génère un workflow
+
+Exemples :
+
+```bash
+npx pushguardian mirror --source github --target gitlab --repo myproject --source-owner myorg --target-owner myorg
+npx pushguardian mirror --sync-branches --public-repo
+```
+
+### **4. Gestion de Configuration**
 ```bash
 npx pushguardian config [clé] [valeur]
 ```
@@ -192,37 +219,43 @@ pushguardian/
 ├── src/
 │   ├── cli/                          # Interface en ligne de commande
 │   │   ├── command/                  # Commandes principales
-│   │   │   ├── config.js             # Gestion configuration
-│   │   │   ├── install.js            # Installation système
-│   │   │   └── validate.js           # Validation manuelle
-│   │   ├── index.js                  # Point d'entrée CLI
+│   │   │   ├── [config.js](http://_vscodecontentref_/0)             # Gestion configuration
+│   │   │   ├── [install.js](http://_vscodecontentref_/1)            # Installation système
+│   │   │   ├── [mirror.js](http://_vscodecontentref_/2)             # Commande de mirroring
+│   │   │   └── [validate.js](http://_vscodecontentref_/3)           # Validation manuelle
+│   │   ├── [index.js](http://_vscodecontentref_/4)                  # Point d'entrée CLI
 │   │   └── install/                  # Sous-commandes installation
-│   │       ├── codeQualityTools.js   # Installation outils qualité
-│   │       └── hooks.js              # Installation hooks Git
+│   │       ├── [codeQualityTools.js](http://_vscodecontentref_/5)   # Installation outils qualité
+│   │       ├── [hooks.js](http://_vscodecontentref_/6)              # Installation hooks Git
+│   │       └── [mirroring.js](http://_vscodecontentref_/7)          # Installation mirroring
 │   │
 │   ├── core/                         # Cœur métier de l'application
 │   │   ├── codeQualityTools/         # Gestion outils qualité code
-│   │   │   ├── configAnalyzer.js     # Analyse configurations existantes
-│   │   │   ├── configGenerator.js    # Génération configurations
-│   │   │   ├── configManager.js      # Gestion configurations CQT
-│   │   │   ├── fileDetector.js       # Détection types de fichiers
-│   │   │   ├── languageTools.js      # Outils par langage
-│   │   │   └── toolInstaller.js      # Installation outils
+│   │   │   ├── [configAnalyzer.js](http://_vscodecontentref_/8)     # Analyse configurations existantes
+│   │   │   ├── [configGenerator.js](http://_vscodecontentref_/9)    # Génération configurations
+│   │   │   ├── [configManager.js](http://_vscodecontentref_/10)      # Gestion configurations CQT
+│   │   │   ├── [fileDetector.js](http://_vscodecontentref_/11)       # Détection types de fichiers
+│   │   │   ├── [languageTools.js](http://_vscodecontentref_/12)      # Outils par langage
+│   │   │   └── [toolInstaller.js](http://_vscodecontentref_/13)      # Installation outils
 │   │   │
-│   │   ├── configManager.js          # Gestion configuration globale
-│   │   ├── createPushGuardianConfig.js # Création config PushGuardian
-│   │   ├── errorCMD.js               # Gestion centralisée des erreurs
+│   │   ├── [configManager.js](http://_vscodecontentref_/14)          # Gestion configuration globale
+│   │   ├── [errorCMD.js](http://_vscodecontentref_/15)               # Gestion centralisée des erreurs
 │   │   ├── interactiveMenu/          # Système de menus interactifs
-│   │   │   └── interactiveMenu.js    # Menu de sélection
-│   │   └── validator.js              # Moteur de validation principal
+│   │   │   └── [interactiveMenu.js](http://_vscodecontentref_/16)    # Menu de sélection
+│   │   ├── mirroring/                # Système de mirroring
+│   │   │   ├── [branchSynchronizer.js](http://_vscodecontentref_/17) # Synchronisation des branches
+│   │   │   ├── [repoManager.js](http://_vscodecontentref_/18)        # Gestion des dépôts
+│   │   │   └── [syncManager.js](http://_vscodecontentref_/19)        # Gestionnaire de synchronisation
+│   │   └── [validator.js](http://_vscodecontentref_/20)              # Moteur de validation principal
 │   │
 │   ├── hooks/                        # Gestion des hooks Git
 │   │   └── constrains/               # Système de contraintes
-│   │       ├── constrains.js         # Définition des contraintes
-│   │       └── constraintEngine.js   # Moteur d'exécution contraintes
+│   │       ├── [constrains.js](http://_vscodecontentref_/21)         # Définition des contraintes
+│   │       └── [constraintEngine.js](http://_vscodecontentref_/22)   # Moteur d'exécution contraintes
 │   │
 │   └── utils/                        # Utilitaires partagés
-│       └── exec-wrapper.js           # Wrapper pour exécution commandes
+│       ├── [chalk-wrapper.js](http://_vscodecontentref_/23)          # Wrapper pour Chalk
+│       └── [exec-wrapper.js](http://_vscodecontentref_/24)           # Wrapper pour exécution commandes
 └── tests/                            # Tests automatisés
     └── unit/
 ```

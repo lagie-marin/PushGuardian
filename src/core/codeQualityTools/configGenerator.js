@@ -1,4 +1,5 @@
 const { default: chalk } = require('chalk');
+const fs = require('fs');
 
 function shouldSkipConfigUpdate(selectedTools, existingPlugins, existingFilesPatterns) {
     const allToolsConfigured = selectedTools.every((tool) => {
@@ -44,6 +45,10 @@ function generateImports(selectedTools, existingPlugins) {
         'HTML (ESLint Plugin)': {
             condition: !existingPlugins.has('html'),
             code: `const html = require('eslint-plugin-html');\n`
+        },
+        'Nuxt (ESLint Plugin)': {
+            condition: !existingPlugins.has('nuxt'),
+            code: `const nuxt = require('eslint-plugin-nuxt');\n`
         }
     };
 
@@ -79,7 +84,8 @@ function generateNewConfigs(selectedTools, existingPlugins, existingFilesPattern
         'JSON (ESLint Plugin)': generateJSONCode,
         'Markdown (ESLint Plugin)': generateMarkdownCode,
         'YAML (ESLint Plugin)': generateYAMLCode,
-        'HTML (ESLint Plugin)': generateHTMLCode
+        'HTML (ESLint Plugin)': generateHTMLCode,
+        'Nuxt (ESLint Plugin)': generateNuxtCode
     };
 
     const newConfigs = [];
@@ -211,7 +217,7 @@ function generateTypeScriptCode(existingPlugins, existingFilesPatterns) {
         languageOptions: {
             parser: typescriptParser,
         },
-        plugins: { typescript: typescriptPlugin },
+        plugins: { '@typescript-eslint': typescriptPlugin },
         rules: {
             '@typescript-eslint/no-unused-vars': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn'
@@ -264,6 +270,24 @@ function generateHTMLCode(existingPlugins, existingFilesPatterns) {
     }`;
 }
 
+function generateNuxtCode(existingPlugins, existingFilesPatterns) {
+    const hasPlugin = existingPlugins.has('nuxt');
+    const hasConfig = existingFilesPatterns.has('**/*.vue');
+
+    if (hasPlugin || hasConfig) {
+        return null;
+    }
+
+    return `{
+        files: ['**/*.nuxt'],
+        plugins: { nuxt },
+        ,
+        rules: {
+            'nuxt/prefer-import-meta': 'error'
+        }
+    }`;
+}
+
 function analyzeExistingConfig(configItem, existingPlugins, existingFilesPatterns) {
     if (configItem.plugins) {
         Object.keys(configItem.plugins).forEach((plugin) => existingPlugins.add(plugin));
@@ -282,7 +306,8 @@ function getPluginNameForTool(tool) {
         'JSON (ESLint Plugin)': 'json',
         'Markdown (ESLint Plugin)': 'markdown',
         'YAML (ESLint Plugin)': 'yaml',
-        'HTML (ESLint Plugin)': 'html'
+        'HTML (ESLint Plugin)': 'html',
+        'Nuxt (ESLint Plugin)': 'nuxt'
     };
 
     return pluginMap[tool];
@@ -295,10 +320,42 @@ function getFilePatternsForTool(tool) {
         'JSON (ESLint Plugin)': ['**/*.json'],
         'Markdown (ESLint Plugin)': ['**/*.md'],
         'YAML (ESLint Plugin)': ['**/*.yaml', '**/*.yml'],
-        'HTML (ESLint Plugin)': ['**/*.html']
+        'HTML (ESLint Plugin)': ['**/*.html'],
+        'Nuxt (ESLint Plugin)': ['**/*.vue']
     };
 
     return patternMap[tool] || [];
+}
+
+async function createNewConfig(selectedTools) {
+    const configGenerator = require('./configGenerator');
+
+    const existingAnalysis = {
+        plugins: new Set(),
+        filePatterns: new Set(),
+        configContent: []
+    };
+
+    const imports = configGenerator.generateImports(selectedTools, existingAnalysis.plugins);
+    const newConfigs = configGenerator.generateNewConfigs(
+        selectedTools,
+        existingAnalysis.plugins,
+        existingAnalysis.filePatterns
+    );
+
+    const configContent = `${imports}
+
+module.exports = [
+  js.configs.recommended,
+  {
+    ignores: ['node_modules/', 'dist/', 'build/', '**/*.json', '**/*.md'],
+  },
+${newConfigs.join(',\n')}
+];
+`;
+
+    fs.writeFileSync('eslint.config.js', configContent);
+    console.log(chalk.green('📄 Nouvelle configuration ESLint créée avec les plugins sélectionnés'));
 }
 
 module.exports = {
@@ -314,8 +371,10 @@ module.exports = {
     generateTypeScriptCode,
     generateJSONCode,
     generateJavaScriptCode,
+    generateNuxtCode,
     analyzeExistingConfig,
     getPluginNameForTool,
     getFilePatternsForTool,
-    serializeConfig
+    serializeConfig,
+    createNewConfig
 };

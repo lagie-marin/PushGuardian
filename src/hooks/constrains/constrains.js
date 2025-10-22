@@ -41,7 +41,7 @@ async function validateCommitMessage(validationInfo) {
         separator = constraintsConfig.mustStartWith;
     }
 
-    const commitRegex = new RegExp(`^\\[([^\\]]+)\\](${separator}.+)$`);
+    const commitRegex = new RegExp(`^\\[([^\\]]+)\\](${separator}[\\s\\S]*)$`);
     let match = message.match(commitRegex);
 
     if (!match && constraintsConfig && constraintsConfig.autoStartWith) {
@@ -130,30 +130,40 @@ async function validateBranchName(validationInfo) {
 
 async function validatePrePush() {
     const { stdout: branch } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
-    await execa('git', ['fetch', 'origin', branch, '--depth=1']);
 
     const { stdout: remoteBranches } = await execa('git', ['ls-remote', '--heads', 'origin', branch]);
     const remoteExists = remoteBranches && remoteBranches.includes(branch);
 
     if (remoteExists) {
-        const { stdout: diff } = await execa('git', ['rev-list', '--count', `${branch}..origin/${branch}`]);
-        if (parseInt(diff, 10) > 0) {
-            console.log(
-                chalk.red(`/!\\: La branche distante "origin/${branch}" est différente de la branche locale actuelle.`)
-            );
-            const { stdout: status } = await execa('git', ['status', '--porcelain']);
-            if (status.trim().length > 0) {
+        try {
+            await execa('git', ['fetch', 'origin', branch, '--depth=1']);
+
+            const { stdout: diff } = await execa('git', ['rev-list', '--count', `${branch}..origin/${branch}`]);
+            if (parseInt(diff, 10) > 0) {
                 console.log(
                     chalk.red(
-                        'Des modifications locales non commit sont présentes.\ngit stash && git pull && git stash pop'
+                        `/!\\: La branche distante "origin/${branch}" est différente de la branche locale actuelle.`
                     )
                 );
-            } else {
-                console.log(chalk.red('Veuillez récupérer les changements distants avec : git pull'));
+                const { stdout: status } = await execa('git', ['status', '--porcelain']);
+                if (status.trim().length > 0) {
+                    console.log(
+                        chalk.red(
+                            'Des modifications locales non commit sont présentes.\ngit stash && git pull && git stash pop'
+                        )
+                    );
+                } else {
+                    console.log(chalk.red('Veuillez récupérer les changements distants avec : git pull'));
+                }
+                process.exit(1);
             }
-            process.exit(1);
+        } catch (error) {
+            console.log(chalk.yellow(`Attention: Impossible de vérifier la branche distante (${error.message})`));
         }
+    } else {
+        console.log(chalk.green(`✅ Nouvelle branche "${branch}" - premier push vers le remote`));
     }
+
     await execa('npx', ['pushguardian', 'validate', '-s']);
     return { success: true, error: null };
 }

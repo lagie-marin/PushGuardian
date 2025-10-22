@@ -1,7 +1,50 @@
 const { default: chalk } = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const createPushGuardianConfig = require('../../core/createPushGuardianConfig');
+
+function createHooksConfig() {
+    const hooksConfig = {
+        hooks: {
+            'commit-msg': {
+                type: ['ADD', 'UPDATE', 'DELETE', 'FIX', 'MERGE', 'CHORE'],
+                constraints: {
+                    maxLength: 80
+                }
+            },
+            'post-checkout': {
+                type: ['main', 'develop', 'staging', 'feat', 'fix', 'chore', 'hotfixes'],
+                constraints: {}
+            },
+            'pre-push': {}
+        }
+    };
+
+    const configFilePath = 'pushguardian.config.json';
+
+    try {
+        let config = {};
+
+        if (fs.existsSync(configFilePath)) {
+            try {
+                const existingContent = fs.readFileSync(configFilePath, 'utf8');
+                config = JSON.parse(existingContent);
+            } catch {
+                config = {};
+            }
+        }
+
+        config.hooks = hooksConfig.hooks;
+
+        fs.writeFileSync(configFilePath, JSON.stringify(config, null, 4));
+        console.log(chalk.green('📄 Configuration des hooks mise à jour avec succès.'));
+
+        if (!config.install) config.install = {};
+        config.install.hooks = true;
+        fs.writeFileSync(configFilePath, JSON.stringify(config, null, 4));
+    } catch (error) {
+        console.log(chalk.red('❌ Erreur lors de la création de la configuration des hooks:'), error.message);
+    }
+}
 
 function installHooks(hooks = ['pre-push'], force = false) {
     const hooksDir = path.join(process.cwd(), '.git', 'hooks');
@@ -36,8 +79,10 @@ npx pushguardian validate --hooks ${hook} ${hook == 'commit-msg' ? '"$(cat "$1")
     });
 
     console.log(chalk.cyan('💡 Les validations se déclencheront automatiquement sur les hooks configurés.'));
-    createPushGuardianConfig();
+
+    createHooksConfig();
+
     return true;
 }
 
-module.exports = { installHooks };
+module.exports = { installHooks, createHooksConfig };

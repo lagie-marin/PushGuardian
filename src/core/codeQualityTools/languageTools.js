@@ -29,6 +29,10 @@ const LANGUAGE_TOOLS = {
     'HTML (ESLint Plugin)': {
         packages: ['eslint-plugin-html'],
         setup: setupHTML
+    },
+    'Nuxt (ESLint Plugin)': {
+        packages: ['eslint-plugin-nuxt'],
+        setup: setupNuxt
     }
 };
 
@@ -82,6 +86,10 @@ async function setupHTML() {
     console.log(chalk.green('   ⚙️  Plugin HTML configuré'));
 }
 
+async function setupNuxt() {
+    console.log(chalk.green('   ⚙️  Plugin Nuxt configuré'));
+}
+
 module.exports = {
     LANGUAGE_TOOLS,
     setupESLint,
@@ -90,5 +98,6 @@ module.exports = {
     setupMarkdown,
     setupCSS,
     setupYAML,
-    setupHTML
+    setupHTML,
+    setupNuxt
 };

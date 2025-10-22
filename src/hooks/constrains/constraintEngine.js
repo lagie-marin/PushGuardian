@@ -6,15 +6,15 @@ class ConstraintEngine {
     }
 
     setupDefaultConstraints() {
-        this.constraints.set('noUppercase', (value, param, options = {}) => {
+        this.constraints.set('noUppercase', (value) => {
             return !/[A-Z]/.test(value);
         });
 
-        this.constraints.set('noDigits', (value, param, options = {}) => {
+        this.constraints.set('noDigits', (value) => {
             return !/\d/.test(value);
         });
 
-        this.constraints.set('noSpecialChars', (value, param, options = {}) => {
+        this.constraints.set('noSpecialChars', (value) => {
             return !/[!@#$%^&*(),.?":{}|<>]/.test(value);
         });
 
@@ -51,7 +51,7 @@ class ConstraintEngine {
             }
         });
 
-        this.constraints.set('noEmptyMessage', (value, param) => value && value.trim().length > 0);
+        this.constraints.set('noEmptyMessage', (value) => value && value.trim().length > 0);
         this.setupDefaultErrorMessages();
     }
 

@@ -4,7 +4,7 @@ const getChalk = () => {
     if (!chalk) {
         try {
             chalk = require('chalk');
-        } catch (error) {
+        } catch {
             chalk = {
                 red: (text) => text,
                 green: (text) => text,
