@@ -24,7 +24,9 @@ function createCodeQualityConfig(installedTools) {
             try {
                 const existingContent = fs.readFileSync(configFilePath, 'utf8');
                 existingConfig = JSON.parse(existingContent);
-            } catch (error) {}
+            } catch {
+                existingConfig = {};
+            }
         }
 
         existingConfig.validate = config.validate;

@@ -1,6 +1,7 @@
 const { default: chalk } = require('chalk');
 const { loadConfig } = require('../../core/configManager');
 const { SyncManager } = require('../../core/mirroring/syncManager');
+const { generateWorkflow } = require('../../core/mirroring/generate');
 const errorCMD = require('../../core/errorCMD');
 const { getEnv, loadEnv } = require('../../core/module/env-loader');
 
@@ -10,7 +11,10 @@ module.exports = {
     options: [
         { flags: '-s --source <platform>', description: 'Plateforme source (github, gitlab, bitbucket, azure)' },
         { flags: '-t --target <platform>', description: 'Plateforme cible (github, gitlab, bitbucket, azure)' },
-        { flags: '-r --repo <name>', description: 'Nom du référentiel source (et cible si --target-repo non spécifié)' },
+        {
+            flags: '-r --repo <name>',
+            description: 'Nom du référentiel source (et cible si --target-repo non spécifié)'
+        },
         { flags: '--source-repo <name>', description: 'Nom du référentiel source' },
         { flags: '--target-repo <name>', description: 'Nom du référentiel cible' },
         { flags: '--source-owner <owner>', description: 'Propriétaire du référentiel source (requis pour GitHub)' },
@@ -23,6 +27,11 @@ module.exports = {
         try {
             loadEnv();
             const config = loadConfig();
+
+            if (options.generate) {
+                generateWorkflow();
+                return;
+            }
 
             if (!config.mirroring) {
                 console.log(chalk.red('❌ Configuration de mise en miroir manquante dans pushguardian.config.json'));
@@ -37,12 +46,25 @@ module.exports = {
             const targetOwner = options.targetOwner || getEnv('TARGET_OWNER');
 
             if (!sourcePlatform || !targetPlatform || !sourceRepo || !targetRepo || !sourceOwner || !targetOwner) {
-                console.log(chalk.red('❌ Plateformes, repos et propriétaires source/cible requis. Spécifiez-les via options ou configurez des valeurs par défaut lors de l\'installation.'));
+                console.log(
+                    chalk.red(
+                        "❌ Plateformes, repos et propriétaires source/cible requis. Spécifiez-les via options ou configurez des valeurs par défaut lors de l'installation."
+                    )
+                );
                 process.exit(1);
             }
 
             const syncManager = new SyncManager(config.mirroring.platforms);
-            await syncManager.mirror(sourcePlatform, targetPlatform, sourceRepo, targetRepo, sourceOwner, targetOwner, options.syncBranches, options.publicRepo);
+            await syncManager.mirror(
+                sourcePlatform,
+                targetPlatform,
+                sourceRepo,
+                targetRepo,
+                sourceOwner,
+                targetOwner,
+                options.syncBranches,
+                options.publicRepo
+            );
             console.log(chalk.green('✅ Mise en miroir terminée avec succès'));
         } catch (error) {
             errorCMD(error);

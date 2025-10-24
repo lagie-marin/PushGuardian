@@ -122,14 +122,43 @@ Options :
 * `--target-owner <owner>` : Propriétaire du référentiel cible (requis pour GitHub)
 * `--sync-branches` : Active la synchronisation des branches
 * `--public-repo` : Visibilité du mirroir en public
-* `--generate` : Génère un workflow
+* `--generate` : Génère un workflow GitHub Actions pour automatiser le mirroring
 
 Exemples :
 
 ```bash
 npx pushguardian mirror --source github --target gitlab --repo myproject --source-owner myorg --target-owner myorg
 npx pushguardian mirror --sync-branches --public-repo
+npx pushguardian mirror --generate 
 ```
+
+#### **Workflow GitHub Actions**
+PushGuardian inclut un workflow GitHub Actions pour automatiser le mirroring. Le workflow se déclenche automatiquement sur les événements suivants :
+- **Push** sur les branches `main` ou `master`
+- **Manuellement** via workflow_dispatch
+- **Planifié** tous les jours à 2h UTC
+
+Pour configurer le mirroring automatique :
+
+1. **Copiez le workflow** `.github/workflows/mirror.yml` dans votre repository
+2. **Configurez les variables d'environnement** dans Settings > Secrets and variables > Actions :
+   - Variables (Variables) :
+     - `SOURCE_PLATFORM` : Plateforme source (github, gitlab, bitbucket, azure)
+     - `TARGET_PLATFORM` : Plateforme cible (github, gitlab, bitbucket, azure)
+     - `REPO_NAME` : Nom du repository
+     - `SOURCE_OWNER` : Propriétaire/organisation source
+     - `TARGET_OWNER` : Propriétaire/organisation cible
+     - `SYNC_BRANCHES` : true/false pour synchroniser les branches
+     - `PUBLIC_REPO` : true/false pour rendre le mirror public
+   - Secrets :
+     - `GITHUB_TOKEN` : Token GitHub (généré automatiquement)
+     - `GITLAB_TOKEN` : Token d'accès GitLab
+     - `BITBUCKET_USERNAME` : Nom d'utilisateur BitBucket
+     - `BITBUCKET_PASSWORD` : Mot de passe ou token d'app BitBucket
+     - `AZURE_DEVOPS_URL` : URL de l'organisation Azure DevOps
+     - `AZURE_DEVOPS_TOKEN` : Token d'accès Azure DevOps
+
+Le workflow clonera automatiquement PushGuardian, installera les dépendances et exécutera la commande mirror avec vos paramètres configurés.
 
 ### **4. Gestion de Configuration**
 ```bash

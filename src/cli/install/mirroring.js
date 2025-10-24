@@ -14,18 +14,17 @@ function askCredentials(platform) {
         const credentials = {};
 
         const questions = {
-            github: [
-                { key: 'token', question: 'Entrez votre token GitHub: ' }
-            ],
-            gitlab: [
-                { key: 'token', question: 'Entrez votre token GitLab: ' }
-            ],
+            github: [{ key: 'token', question: 'Entrez votre token GitHub: ' }],
+            gitlab: [{ key: 'token', question: 'Entrez votre token GitLab: ' }],
             bitbucket: [
-                { key: 'username', question: 'Entrez votre nom d\'utilisateur BitBucket: ' },
+                { key: 'username', question: "Entrez votre nom d'utilisateur BitBucket: " },
                 { key: 'password', question: 'Entrez votre mot de passe BitBucket: ' }
             ],
             azure: [
-                { key: 'url', question: 'Entrez l\'URL de votre organisation Azure DevOps (ex: https://dev.azure.com/org): ' },
+                {
+                    key: 'url',
+                    question: "Entrez l'URL de votre organisation Azure DevOps (ex: https://dev.azure.com/org): "
+                },
                 { key: 'token', question: 'Entrez votre token Azure DevOps: ' }
             ]
         };
@@ -98,7 +97,7 @@ function getCredentialsFromEnv(platform) {
     return credentials;
 }
 
-function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) { // Remove 'defaults' parameter
+function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) {
     const mirroringConfig = {
         mirroring: {
             enabled: true,
@@ -108,7 +107,7 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
                 includeBranches: defaultSettings.includeBranches !== false,
                 includeTags: defaultSettings.includeTags !== false
             },
-            platforms: {},
+            platforms: {}
         }
     };
     const allPlatforms = {
@@ -118,7 +117,7 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
         azure: { enabled: false }
     };
 
-    selectedPlatforms.forEach(platform => {
+    selectedPlatforms.forEach((platform) => {
         const key = platform.toLowerCase().replace(' ', '');
         if (allPlatforms[key]) {
             mirroringConfig.mirroring.platforms[key] = {
@@ -128,7 +127,7 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
         }
     });
 
-    Object.keys(allPlatforms).forEach(key => {
+    Object.keys(allPlatforms).forEach((key) => {
         if (!mirroringConfig.mirroring.platforms[key]) {
             mirroringConfig.mirroring.platforms[key] = allPlatforms[key];
         }
@@ -143,7 +142,9 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
             try {
                 const existingContent = fs.readFileSync(configFilePath, 'utf8');
                 existingConfig = JSON.parse(existingContent);
-            } catch (error) { }
+            } catch {
+                existingConfig = {};
+            }
         }
 
         existingConfig.mirroring = mirroringConfig.mirroring;
@@ -154,29 +155,26 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
         fs.writeFileSync(configFilePath, JSON.stringify(existingConfig, null, 4));
         console.log(chalk.green('📄 Configuration du système de mirroring mise à jour avec succès.'));
     } catch (error) {
-        console.log(
-            chalk.red('❌ Erreur lors de la création de la configuration du mirroring:'),
-            error.message
-        );
+        console.log(chalk.red('❌ Erreur lors de la création de la configuration du mirroring:'), error.message);
     }
 }
 
 function saveCredentialsToEnv(credentials) {
     const envPath = '.env';
 
-    Object.keys(credentials).forEach(platformKey => {
+    Object.keys(credentials).forEach((platformKey) => {
         const creds = credentials[platformKey];
         console.log(`🔐 Sauvegarde des credentials pour ${platformKey} dans .env, creds: ${JSON.stringify(creds)}`);
         if (platformKey === 'github' && creds.token && !getEnv('GITHUB_TOKEN')) {
-            saveEnv("GITHUB_TOKEN", creds.token, envPath);
+            saveEnv('GITHUB_TOKEN', creds.token, envPath);
         } else if (platformKey === 'gitlab' && creds.token && !getEnv('GITLAB_TOKEN')) {
-            saveEnv("GITLAB_TOKEN", creds.token, envPath);
+            saveEnv('GITLAB_TOKEN', creds.token, envPath);
         } else if (platformKey === 'bitbucket' && !getEnv('BITBUCKET_USERNAME') && !getEnv('BITBUCKET_PASSWORD')) {
-            if (creds.username) saveEnv("BITBUCKET_USERNAME", creds.username, envPath);
-            if (creds.password) saveEnv("BITBUCKET_PASSWORD", creds.password, envPath);
+            if (creds.username) saveEnv('BITBUCKET_USERNAME', creds.username, envPath);
+            if (creds.password) saveEnv('BITBUCKET_PASSWORD', creds.password, envPath);
         } else if (platformKey === 'azure' && !getEnv('AZURE_DEVOPS_URL') && !getEnv('AZURE_DEVOPS_TOKEN')) {
-            if (creds.url) saveEnv("AZURE_DEVOPS_URL", creds.url, envPath);
-            if (creds.token) saveEnv("AZURE_DEVOPS_TOKEN", creds.token, envPath);
+            if (creds.url) saveEnv('AZURE_DEVOPS_URL', creds.url, envPath);
+            if (creds.token) saveEnv('AZURE_DEVOPS_TOKEN', creds.token, envPath);
         }
     });
     console.log(chalk.green('🔐 Credentials sauvegardés dans le fichier .env'));
@@ -189,14 +187,12 @@ async function installMirroringTools() {
 
     const configFilePath = 'pushguardian.config.json';
     if (fs.existsSync(configFilePath)) {
-        try {
-            const existingContent = fs.readFileSync(configFilePath, 'utf8');
-            const existingConfig = JSON.parse(existingContent);
-            if (existingConfig.install && existingConfig.install.mirroring) {
-                console.log(chalk.yellow('⚠️  Le système de mirroring est déjà installé.'));
-                return;
-            }
-        } catch (error) { }
+        const existingContent = fs.readFileSync(configFilePath, 'utf8');
+        const existingConfig = JSON.parse(existingContent);
+        if (existingConfig.install && existingConfig.install.mirroring) {
+            console.log(chalk.yellow('⚠️  Le système de mirroring est déjà installé.'));
+            return;
+        }
     }
 
     const availablePlatforms = ['GitHub', 'GitLab', 'BitBucket', 'Azure DevOps'];
@@ -231,7 +227,7 @@ async function installMirroringTools() {
 
     const defaults = await askForDefaults();
 
-    Object.keys(defaults).forEach(key => {
+    Object.keys(defaults).forEach((key) => {
         const envKey = `${key.toUpperCase()}`;
         if (defaults[key]) {
             saveEnv(envKey, defaults[key]);
@@ -240,8 +236,12 @@ async function installMirroringTools() {
 
     createMirroringConfig(selectedPlatforms, credentials, defaultSettings);
     console.log(chalk.green('✅ Installation du système de mirroring terminée!'));
-    console.log(chalk.blue('💡 Utilisez la commande "pushguardian mirror" pour effectuer des opérations de mirroring.'));
-    console.log(chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables PUSHGUARDIAN_MIRROR_*).'));
+    console.log(
+        chalk.blue('💡 Utilisez la commande "pushguardian mirror" pour effectuer des opérations de mirroring.')
+    );
+    console.log(
+        chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables PUSHGUARDIAN_MIRROR_*).')
+    );
 }
 
 async function askForDefaults() {
@@ -269,20 +269,35 @@ async function askForDefaults() {
             });
         }
 
-        ask('Entrez la plateforme source par défaut (github, gitlab, bitbucket, azure): ', 'source_Platform', (val) => supportedPlatforms.includes(val.toLowerCase()), () => {
-            ask('Entrez la plateforme cible par défaut (github, gitlab, bitbucket, azure): ', 'target_Platform', (val) => supportedPlatforms.includes(val.toLowerCase()), () => {
-                ask('Entrez le repo source par défaut (optionnel): ', 'source_Repo', null, () => {
-                    ask('Entrez le propriétaire source par défaut (optionnel): ', 'source_Owner', null, () => {
-                        ask('Entrez le repo cible par défaut (optionnel): ', 'target_Repo', null, () => {
-                            ask('Entrez le propriétaire cible par défaut (optionnel): ', 'target_Owner', null, () => {
-                                rl.close();
-                                resolve(defaults);
+        ask(
+            'Entrez la plateforme source par défaut (github, gitlab, bitbucket, azure): ',
+            'source_Platform',
+            (val) => supportedPlatforms.includes(val.toLowerCase()),
+            () => {
+                ask(
+                    'Entrez la plateforme cible par défaut (github, gitlab, bitbucket, azure): ',
+                    'target_Platform',
+                    (val) => supportedPlatforms.includes(val.toLowerCase()),
+                    () => {
+                        ask('Entrez le repo source par défaut (optionnel): ', 'source_Repo', null, () => {
+                            ask('Entrez le propriétaire source par défaut (optionnel): ', 'source_Owner', null, () => {
+                                ask('Entrez le repo cible par défaut (optionnel): ', 'target_Repo', null, () => {
+                                    ask(
+                                        'Entrez le propriétaire cible par défaut (optionnel): ',
+                                        'target_Owner',
+                                        null,
+                                        () => {
+                                            rl.close();
+                                            resolve(defaults);
+                                        }
+                                    );
+                                });
                             });
                         });
-                    });
-                });
-            });
-        });
+                    }
+                );
+            }
+        );
     });
 }
 

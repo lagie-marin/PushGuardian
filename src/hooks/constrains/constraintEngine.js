@@ -76,7 +76,7 @@ class ConstraintEngine {
     async validate(message, constraintsConfig, callback = null) {
         const errors = [];
         if (constraintsConfig.constraints) {
-            for (const [constraintName, _] of Object.entries(constraintsConfig.constraints)) {
+            for (const [constraintName] of Object.entries(constraintsConfig.constraints)) {
                 if (!this.constraints.has(constraintName)) {
                     errors.push(`Contrainte inconnue: ${constraintName}`);
                     continue;

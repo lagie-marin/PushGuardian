@@ -41,8 +41,7 @@ function loadEnv(envPath = '.env') {
             }
         });
 
-        console.log('✅ Variables d\'environnement chargées depuis .env');
-
+        console.log("✅ Variables d'environnement chargées depuis .env");
     } catch (error) {
         console.error('❌ Erreur lors du chargement du fichier .env:', error.message);
     }
@@ -102,7 +101,6 @@ function saveEnv(key, value, envPath = '.env') {
 
         fs.writeFileSync(absolutePath, lines.join('\n'), 'utf8');
         console.log(`✅ Variable ${key} sauvegardée dans .env`);
-
     } catch (error) {
         console.error('❌ Erreur lors de la sauvegarde de la variable:', error.message);
     }

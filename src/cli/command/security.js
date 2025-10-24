@@ -1,7 +1,7 @@
-const getChalk = require('../../utils/chalk-wrapper');
 const fs = require('fs');
 const path = require('path');
 const execa = require('../../utils/exec-wrapper');
+const { default: chalk } = require('chalk');
 
 function detectProjectTechnology() {
     const cwd = process.cwd();
@@ -44,7 +44,7 @@ function detectProjectTechnology() {
     return 'unknown';
 }
 
-function getSecurityCommands(technology, fix = false) {
+function getSecurityCommands(technology) {
     const commands = {
         nodejs: {
             check: ['npm', 'audit'],
@@ -93,7 +93,6 @@ module.exports = {
         }
     ],
     action: async (options) => {
-        const chalk = await getChalk();
         console.log(chalk.blue('🔍 Vérification des vulnérabilités de sécurité dans les dépendances du projet...'));
 
         try {
@@ -110,7 +109,7 @@ module.exports = {
 
             console.log(chalk.cyan(`📦 Technologie détectée : ${technology.toUpperCase()}`));
 
-            const securityCommands = getSecurityCommands(technology, options.fix);
+            const securityCommands = getSecurityCommands(technology);
 
             if (!securityCommands) {
                 console.log(chalk.yellow(`⚠️  Aucune commande de sécurité définie pour ${technology}`));

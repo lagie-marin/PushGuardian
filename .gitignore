@@ -1,1 +1,5 @@
 node_modules/
+SUIVIE.md
+pushguardian.config.json
+eslint.config.js
+.prettierrc

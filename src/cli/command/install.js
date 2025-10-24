@@ -49,7 +49,11 @@ module.exports = {
     ],
     action: async (options) => {
         try {
-            if ((options.hooks && options.skipHooks) || (options.codeQuality && options.skipCodeQuality) || (options.mirroring && options.skipMirroring)) {
+            if (
+                (options.hooks && options.skipHooks) ||
+                (options.codeQuality && options.skipCodeQuality) ||
+                (options.mirroring && options.skipMirroring)
+            ) {
                 console.log(
                     getChalk().red(
                         '❌ Options conflictuelles. Veuillez vérifier vos options.\n\t\tVous ne pouvez pas utiliser --hooks et --skip-hooks, --code-quality et --skip-code-quality, ou --mirroring et --skip-mirroring simultanément.'
@@ -79,13 +83,25 @@ module.exports = {
             if (options.skipHooks) selected = selected.filter((item) => item !== 'Hooks Git');
             if (options.skipCodeQuality) selected = selected.filter((item) => item !== 'Code Quality Tools');
             if (options.skipMirroring) selected = selected.filter((item) => item !== 'Mirroring');
-            else if (options.hooks || options.codeQuality || options.mirroring || options.skipHooks || options.skipCodeQuality || options.skipMirroring) {
+            else if (
+                options.hooks ||
+                options.codeQuality ||
+                options.mirroring ||
+                options.skipHooks ||
+                options.skipCodeQuality ||
+                options.skipMirroring
+            ) {
                 selected = [];
                 if (options.hooks && !options.skipHooks) selected.push('Hooks Git');
                 if (options.codeQuality && !options.skipCodeQuality) selected.push('Code Quality Tools');
                 if (options.mirroring && !options.skipMirroring) selected.push('Mirroring');
 
-                if (!options.hooks && !options.codeQuality && !options.mirroring && (options.skipHooks || options.skipCodeQuality || options.skipMirroring)) {
+                if (
+                    !options.hooks &&
+                    !options.codeQuality &&
+                    !options.mirroring &&
+                    (options.skipHooks || options.skipCodeQuality || options.skipMirroring)
+                ) {
                     if (!options.skipHooks) selected.push('Hooks Git');
                     if (!options.skipCodeQuality) selected.push('Code Quality Tools');
                     if (!options.skipMirroring) selected.push('Mirroring');
