@@ -1,8 +1,9 @@
-const { default: chalk } = require('chalk');
 const fs = require('fs');
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const readline = require('readline');
 const { loadEnv, getEnv, saveEnv } = require('../../core/module/env-loader');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
 
 function askCredentials(platform) {
     return new Promise((resolve) => {

@@ -1,5 +1,6 @@
 const fs = require('fs');
-const { default: chalk } = require('chalk');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
 const {
     generateHTMLCode,
     generateYAMLCode,

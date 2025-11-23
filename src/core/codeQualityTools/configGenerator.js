@@ -1,5 +1,6 @@
-const { default: chalk } = require('chalk');
 const fs = require('fs');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
 
 function shouldSkipConfigUpdate(selectedTools, existingPlugins, existingFilesPatterns) {
     const allToolsConfigured = selectedTools.every((tool) => {

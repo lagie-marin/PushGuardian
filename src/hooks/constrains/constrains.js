@@ -1,9 +1,12 @@
-const { default: chalk } = require('chalk');
+const { getChalk } = require('../../utils/chalk-wrapper');
 const { loadConfig } = require('../../core/configManager');
 const { execa } = require('execa');
 const { constraintEngine } = require('./constraintEngine');
 const fs = require('fs');
 const path = require('path');
+
+const chalk = getChalk();
+
 async function constrains(hooksName, message) {
     const config = loadConfig();
 

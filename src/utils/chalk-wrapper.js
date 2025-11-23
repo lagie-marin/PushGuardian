@@ -1,11 +1,13 @@
-let chalk = null;
+let _chalk = null;
 
 const getChalk = () => {
-    if (!chalk) {
+    if (!_chalk) {
         try {
-            chalk = require('chalk');
+            const { default: chalk } = require('chalk');
+
+            _chalk = chalk;
         } catch {
-            chalk = {
+            _chalk = {
                 red: (text) => text,
                 green: (text) => text,
                 yellow: (text) => text,
@@ -18,7 +20,7 @@ const getChalk = () => {
             };
         }
     }
-    return chalk;
+    return _chalk;
 };
 
-module.exports = getChalk;
+module.exports = { getChalk };

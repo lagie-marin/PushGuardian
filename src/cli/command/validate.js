@@ -1,6 +1,6 @@
-const { default: chalk } = require('chalk');
 const { validateCode } = require('../../core/validator');
 const errorCMD = require('../../core/errorCMD');
+const { getChalk } = require('../../utils/chalk-wrapper');
 
 module.exports = {
     name: 'validate',
@@ -29,6 +29,7 @@ module.exports = {
         }
     ],
     action: async (argument, options) => {
+        const chalk = getChalk();
         if (!options.silent) console.log(chalk.blue('🔍 Validation en cours...'));
         try {
             const result = await validateCode(argument, options);

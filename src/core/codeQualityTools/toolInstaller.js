@@ -1,6 +1,7 @@
 const { execa } = require('execa');
 const fs = require('fs');
-const { default: chalk } = require('chalk');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
 
 async function installBaseTools() {
     try {

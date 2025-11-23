@@ -84,6 +84,8 @@ class ConstraintEngine {
             }
         }
 
+        let messageToValidate = message;
+
         if (errors.length === 0 && typeof callback === 'function' && callback != null) {
             const info = await callback({
                 msg: message,
@@ -92,10 +94,18 @@ class ConstraintEngine {
             });
 
             if (!info.isValid) errors.push(...info.errors);
-        } else if (errors.length === 0 && constraintsConfig.constraints) {
+
+            // Utiliser la description extraite pour valider les contraintes
+            if (info.description) {
+                messageToValidate = info.description;
+            }
+        }
+
+        // Appliquer les contraintes sur le message (ou la description extraite)
+        if (errors.length === 0 && constraintsConfig.constraints) {
             for (const [constraintName, param] of Object.entries(constraintsConfig.constraints)) {
                 const validator = this.constraints.get(constraintName);
-                if (!validator(message, param)) {
+                if (validator && !validator(messageToValidate, param)) {
                     errors.push(this.getErrorMessage(constraintName, param));
                 }
             }

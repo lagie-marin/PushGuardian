@@ -1,4 +1,5 @@
-const { default: chalk } = require('chalk');
+const { getChalk } = require('../utils/chalk-wrapper');
+const chalk = getChalk();
 
 module.exports = (error) => {
     const stackLines = error.stack.split('\n');

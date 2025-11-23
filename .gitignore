@@ -3,3 +3,4 @@ SUIVIE.md
 pushguardian.config.json
 eslint.config.js
 .prettierrc
+coverage

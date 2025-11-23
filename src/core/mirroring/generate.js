@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { default: chalk } = require('chalk');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
 
 function generateWorkflow() {
     try {

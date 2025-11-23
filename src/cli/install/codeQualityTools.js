@@ -1,10 +1,12 @@
-const { default: chalk } = require('chalk');
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const configAnalyzer = require('../../core/codeQualityTools/configAnalyzer');
 const fileDetector = require('../../core/codeQualityTools/fileDetector');
 const toolInstaller = require('../../core/codeQualityTools/toolInstaller');
 const languageTools = require('../../core/codeQualityTools/languageTools');
 const fs = require('fs');
+const { getChalk } = require('../../utils/chalk-wrapper');
+
+const chalk = getChalk();
 
 function createCodeQualityConfig(installedTools) {
     const config = {

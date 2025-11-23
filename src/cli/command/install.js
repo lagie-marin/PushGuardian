@@ -1,4 +1,3 @@
-const { default: chalk } = require('chalk');
 const { installHooks } = require('../install/hooks');
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const { installCodeQualityTools } = require('../install/codeQualityTools');
@@ -48,6 +47,7 @@ module.exports = {
         }
     ],
     action: async (options) => {
+        const chalk = getChalk();
         try {
             if (
                 (options.hooks && options.skipHooks) ||
