@@ -1,3 +1,23 @@
+// Mock stdin before requiring the module
+const mockStdin = {
+    setRawMode: jest.fn(),
+    resume: jest.fn(),
+    pause: jest.fn(),
+    setEncoding: jest.fn(),
+    removeListener: jest.fn(),
+    on: jest.fn(),
+    removeAllListeners: jest.fn(),
+    setMaxListeners: jest.fn()
+};
+
+// Replace stdin with mock
+const originalStdin = process.stdin;
+Object.defineProperty(process, 'stdin', {
+    value: mockStdin,
+    writable: true,
+    configurable: true
+});
+
 const interactiveMenu = require('../../src/core/interactiveMenu/interactiveMenu');
 
 describe('Core InteractiveMenu - interactiveMenu', () => {
@@ -6,23 +26,21 @@ describe('Core InteractiveMenu - interactiveMenu', () => {
         jest.spyOn(console, 'clear').mockImplementation(() => {});
         jest.spyOn(console, 'log').mockImplementation(() => {});
         jest.spyOn(process, 'exit').mockImplementation(() => {});
-        if (typeof process.stdin.setMaxListeners === 'function') {
-            process.stdin.setMaxListeners(100);
-        }
+        
+        // Reset mock implementations
+        mockStdin.setRawMode.mockReturnValue(undefined);
+        mockStdin.resume.mockReturnValue(undefined);
+        mockStdin.pause.mockReturnValue(undefined);
+        mockStdin.setEncoding.mockReturnValue(undefined);
+        mockStdin.removeListener.mockReturnValue(undefined);
+        mockStdin.on.mockReturnValue(undefined);
+        mockStdin.removeAllListeners.mockReturnValue(undefined);
     });
 
     afterEach(() => {
         console.clear.mockRestore();
         console.log.mockRestore();
         if (process.exit && process.exit.mockRestore) process.exit.mockRestore();
-        // Remove any lingering stdin data listeners and restore raw mode
-        try {
-            process.stdin.removeAllListeners && process.stdin.removeAllListeners('data');
-            if (typeof process.stdin.setRawMode === 'function') process.stdin.setRawMode(false);
-            process.stdin.pause && process.stdin.pause();
-        } catch (e) {
-            // ignore cleanup errors
-        }
     });
 
     describe('module export', () => {
