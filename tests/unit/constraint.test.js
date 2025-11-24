@@ -8,6 +8,81 @@ describe('Constraint Engine', () => {
         engine = new ConstraintEngine();
     });
 
+    describe('Constructor et setupDefaultConstraints', () => {
+        test('doit initialiser avec contraintes par défaut', () => {
+            expect(engine.constraints.size).toBeGreaterThan(0);
+            expect(engine.constraints.has('noUppercase')).toBe(true);
+            expect(engine.constraints.has('noDigits')).toBe(true);
+            expect(engine.constraints.has('noSpecialChars')).toBe(true);
+        });
+
+        test('doit initialiser messages d\'erreur par défaut', () => {
+            expect(engine.errorMessages).toBeDefined();
+            expect(typeof engine.errorMessages.noUppercase).toBe('function');
+            expect(typeof engine.errorMessages.minLength).toBe('function');
+        });
+    });
+
+    describe('addConstraint', () => {
+        test('doit ajouter nouvelle contrainte', () => {
+            const customValidator = (value) => value.length > 5;
+            const customErrorMsg = () => 'Custom error';
+
+            engine.addConstraint('customLength', customValidator, customErrorMsg);
+
+            expect(engine.constraints.has('customLength')).toBe(true);
+            expect(engine.errorMessages.customLength).toBe(customErrorMsg);
+        });
+
+        test('doit ajouter contrainte sans message d\'erreur', () => {
+            const customValidator = (value) => value.includes('test');
+
+            engine.addConstraint('mustContainTest', customValidator);
+
+            expect(engine.constraints.has('mustContainTest')).toBe(true);
+        });
+    });
+
+    describe('getErrorMessage', () => {
+        test('doit retourner message d\'erreur personnalisé', () => {
+            const message = engine.getErrorMessage('minLength', 10);
+            expect(message).toBe('Le message doit contenir au moins 10 caractères');
+        });
+
+        test('doit retourner message par défaut pour contrainte inconnue', () => {
+            const message = engine.getErrorMessage('unknownConstraint');
+            expect(message).toBe('Erreur de validation: unknownConstraint');
+        });
+
+        test('doit gérer contrainte sans message défini', () => {
+            engine.constraints.set('noMessage', () => true);
+            const message = engine.getErrorMessage('noMessage');
+            expect(message).toBe('Erreur de validation: noMessage');
+        });
+    });
+
+    describe('validate - gestion des contraintes inconnues', () => {
+        test('doit détecter contrainte inconnue', async () => {
+            const constraints = {
+                constraints: {
+                    unknownConstraint: true
+                }
+            };
+
+            const result = await engine.validate('test', constraints);
+
+            expect(result.isValid).toBe(false);
+            expect(result.errors).toContain('Contrainte inconnue: unknownConstraint');
+        });
+
+        test('doit valider si aucune contrainte', async () => {
+            const result = await engine.validate('test', {});
+
+            expect(result.isValid).toBe(true);
+            expect(result.errors).toHaveLength(0);
+        });
+    });
+
     describe('Validation des messages de commit', () => {
         test('Doit valider un message de commit avec un type autorisé', async () => {
             const constraints = {
@@ -18,7 +93,6 @@ describe('Constraint Engine', () => {
             const result = await engine.validate(
                 '[feat]: Add new feature',
                 constraints,
-                'commit-msg',
                 validateCommitMessage
             );
             expect(result.isValid).toBe(true);
@@ -61,7 +135,6 @@ describe('Constraint Engine', () => {
             const result = await engine.validate(
                 '[feat]: add new feature description',
                 constraints,
-                'commit-msg',
                 validateCommitMessage
             );
             expect(result.isValid).toBe(true);
