@@ -302,4 +302,10 @@ async function askForDefaults() {
     });
 }
 
-module.exports = { installMirroringTools };
+module.exports = {
+    installMirroringTools,
+    askCredentials,
+    getCredentialsFromEnv,
+    saveCredentialsToEnv,
+    createMirroringConfig
+};
