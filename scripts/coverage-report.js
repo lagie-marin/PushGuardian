@@ -38,7 +38,7 @@ function generateCoverageReport() {
     console.log(chalk.bold(`\n📈 Couverture moyenne : ${avgCoverage.toFixed(2)}%\n`));
 
     // Objectifs
-    const target = 50;
+    const target = 80;
     const diff = target - avgCoverage;
 
     if (avgCoverage >= target) {

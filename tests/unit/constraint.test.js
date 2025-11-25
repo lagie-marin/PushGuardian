@@ -507,7 +507,6 @@ describe('Constraint Engine', () => {
     });
 });
 
-// Tests pour l'instance globale
 describe('Instance globale constraintEngine', () => {
     test('Doit fonctionner identiquement à une nouvelle instance', async () => {
         const result1 = await constraintEngine.validate('hello', { constraints: { noUppercase: true } });

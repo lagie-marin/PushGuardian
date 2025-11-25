@@ -6,6 +6,7 @@ jest.mock('path');
 
 describe('Core codeQualityTools - configManager', () => {
     let configManager;
+    let configGenerator;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -18,6 +19,7 @@ describe('Core codeQualityTools - configManager', () => {
         fs.renameSync.mockImplementation(() => {});
         path.resolve.mockReturnValue('/fake/path/eslint.config.js');
         
+        configGenerator = require('../../src/core/codeQualityTools/configGenerator');
         configManager = require('../../src/core/codeQualityTools/configManager');
     });
 
@@ -90,6 +92,49 @@ describe('Core codeQualityTools - configManager', () => {
             const result = await configManager.loadExistingConfig('eslint.config.js');
 
             expect(result.existingConfig).toBeDefined();
+            expect(Array.isArray(result.existingConfig)).toBe(true);
+        });
+
+        test('doit retourner existingConfig array', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(Array.isArray(result.existingConfig)).toBe(true);
+        });
+    });
+
+    describe('createGlobalConfig - tests supplémentaires', () => {
+        test('doit être appelable avec outils', async () => {
+            const selectedTools = ['TypeScript (TypeScript ESLint)'];
+
+            await expect(configManager.createGlobalConfig(selectedTools)).resolves.not.toThrow();
+        });
+
+        test('doit être appelable sans crash avec JSON', async () => {
+            const selectedTools = ['JSON (ESLint Plugin)'];
+
+            await expect(configManager.createGlobalConfig(selectedTools)).resolves.not.toThrow();
+        });
+
+        test('doit retourner sans erreur', async () => {
+            const selectedTools = ['TypeScript (TypeScript ESLint)'];
+
+            const result = await configManager.createGlobalConfig(selectedTools);
+
+            expect(result).toBeUndefined();
+        });
+
+        test('doit gérer outils vides', async () => {
+            const selectedTools = [];
+
+            await expect(configManager.createGlobalConfig(selectedTools)).resolves.not.toThrow();
+        });
+
+        test('doit gérer plusieurs outils', async () => {
+            const selectedTools = ['TypeScript (TypeScript ESLint)', 'JSON (ESLint Plugin)', 'YAML (ESLint Plugin)'];
+
+            await expect(configManager.createGlobalConfig(selectedTools)).resolves.not.toThrow();
         });
     });
 });
