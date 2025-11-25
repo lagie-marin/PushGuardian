@@ -1,9 +1,21 @@
+<<<<<<< HEAD
 const { default: chalk } = require('chalk');
 const { loadConfig } = require('../../core/configManager');
 const { execa } = require('execa');
 const { constraintEngine } = require('./constraintEngine');
 const fs = require('fs');
 const path = require('path');
+=======
+const { getChalk } = require('../../utils/chalk-wrapper');
+const { loadConfig } = require('../../core/configManager');
+const { constraintEngine } = require('./constraintEngine');
+const fs = require('fs');
+const path = require('path');
+const execa = require('../../utils/exec-wrapper');
+
+const chalk = getChalk();
+
+>>>>>>> feat/tests
 async function constrains(hooksName, message) {
     const config = loadConfig();
 
@@ -104,7 +116,10 @@ async function validateBranchName(validationInfo) {
     let branchDescription = '';
 
     try {
+<<<<<<< HEAD
         const { execa } = require('execa');
+=======
+>>>>>>> feat/tests
         const branchName = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']).then((res) => res.stdout);
         const type = validationInfo.type;
         const match = branchName.match(/^([^/]+)(?:\/(.+))?$/);

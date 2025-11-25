@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 let chalk = null;
 
 const getChalk = () => {
@@ -6,6 +7,18 @@ const getChalk = () => {
             chalk = require('chalk');
         } catch {
             chalk = {
+=======
+let _chalk = null;
+
+const getChalk = () => {
+    if (!_chalk) {
+        try {
+            const { default: chalk } = require('chalk');
+
+            _chalk = chalk;
+        } catch {
+            _chalk = {
+>>>>>>> feat/tests
                 red: (text) => text,
                 green: (text) => text,
                 yellow: (text) => text,
@@ -18,7 +31,14 @@ const getChalk = () => {
             };
         }
     }
+<<<<<<< HEAD
     return chalk;
 };
 
 module.exports = getChalk;
+=======
+    return _chalk;
+};
+
+module.exports = { getChalk };
+>>>>>>> feat/tests

@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 const { default: chalk } = require('chalk');
+=======
+>>>>>>> feat/tests
 const fs = require('fs');
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const readline = require('readline');
 const { loadEnv, getEnv, saveEnv } = require('../../core/module/env-loader');
+<<<<<<< HEAD
+=======
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
+>>>>>>> feat/tests
 
 function askCredentials(platform) {
     return new Promise((resolve) => {
@@ -301,4 +309,14 @@ async function askForDefaults() {
     });
 }
 
+<<<<<<< HEAD
 module.exports = { installMirroringTools };
+=======
+module.exports = {
+    installMirroringTools,
+    askCredentials,
+    getCredentialsFromEnv,
+    saveCredentialsToEnv,
+    createMirroringConfig
+};
+>>>>>>> feat/tests

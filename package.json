@@ -8,36 +8,41 @@
     "main": "index.js",
     "scripts": {
         "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "test:ci": "jest --ci --coverage --maxWorkers=2",
+        "coverage:report": "node scripts/coverage-report.js",
         "start": "node src/cli/index.js",
-        "dev": "node src/cli/index.js --help"
+        "dev": "node src/cli/index.js --help",
+        "docker:build": "docker build -t pushguardian:latest .",
+        "docker:dev": "docker-compose up test",
+        "docker:coverage": "docker-compose up coverage",
+        "docker:run": "docker run --rm -v $(pwd):/workspace pushguardian:latest",
+        "docker:validate": "docker-compose run --rm pushguardian validate"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "type": "commonjs",
     "devDependencies": {
-        "@eslint/markdown": "^7.5.0",
-        "eslint": "^9.38.0",
+        "@babel/preset-env": "^7.28.5",
+        "@eslint/markdown": "^7.5.1",
+        "eslint": "^9.39.1",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-json": "^4.0.1",
         "eslint-plugin-prettier": "^5.5.4",
-        "globals": "^16.4.0",
-        "jest": "^30.1.3",
+        "globals": "^16.5.0",
+        "jest": "^30.2.0",
         "prettier": "^3.6.2"
     },
     "dependencies": {
-        "@octokit/rest": "^22.0.0",
+        "@octokit/rest": "^22.0.1",
         "azure-devops-node-api": "^15.1.1",
-        "bitbucket": "^2.7.0",
+        "bitbucket": "^2.12.0",
         "chalk": "5.6.2",
-        "commander": "^14.0.1",
-        "execa": "^9.6.0",
+        "commander": "^14.0.2",
+        "execa": "9.6.0",
         "gitlab": "^14.2.2",
-        "simple-git": "^3.28.0"
-    },
-    "jest": {
-        "transformIgnorePatterns": [
-            "node_modules/(?!chalk/)"
-        ]
+        "simple-git": "^3.30.0"
     }
 }

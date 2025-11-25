@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 const { default: chalk } = require('chalk');
 const fs = require('fs');
 const path = require('path');
+=======
+const fs = require('fs');
+const path = require('path');
+const { getChalk } = require('../../utils/chalk-wrapper');
+const chalk = getChalk();
+>>>>>>> feat/tests
 
 function createHooksConfig() {
     const hooksConfig = {

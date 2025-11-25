@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 const { default: chalk } = require('chalk');
+=======
+>>>>>>> feat/tests
 const { loadConfig } = require('../../core/configManager');
 const { SyncManager } = require('../../core/mirroring/syncManager');
 const { generateWorkflow } = require('../../core/mirroring/generate');
 const errorCMD = require('../../core/errorCMD');
 const { getEnv, loadEnv } = require('../../core/module/env-loader');
+<<<<<<< HEAD
+=======
+const { getChalk } = require('../../utils/chalk-wrapper');
+>>>>>>> feat/tests
 
 module.exports = {
     name: 'mirror',
@@ -24,6 +31,10 @@ module.exports = {
         { flags: '-g --generate', description: 'Génére un workflow' }
     ],
     action: async (options) => {
+<<<<<<< HEAD
+=======
+        const chalk = getChalk();
+>>>>>>> feat/tests
         try {
             loadEnv();
             const config = loadConfig();
