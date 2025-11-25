@@ -14,7 +14,7 @@ function generateCoverageReport() {
     const coverage = JSON.parse(fs.readFileSync(coverageFile, 'utf8'));
     const total = coverage.total;
 
-    console.log(chalk.bold('\n📊 Rapport de Couverture de Tests\n'));
+    console.log(chalk.bold('\nRapport de Couverture de Tests\n'));
     console.log(chalk.blue('═'.repeat(50)));
 
     const metrics = [
@@ -35,38 +35,38 @@ function generateCoverageReport() {
     console.log(chalk.blue('═'.repeat(50)));
 
     const avgCoverage = (total.statements.pct + total.branches.pct + total.functions.pct + total.lines.pct) / 4;
-    console.log(chalk.bold(`\n📈 Couverture moyenne : ${avgCoverage.toFixed(2)}%\n`));
+    console.log(chalk.bold(`\nCouverture moyenne : ${avgCoverage.toFixed(2)}%\n`));
 
     // Objectifs
-    const target = 80;
+    const target = 90;
     const diff = target - avgCoverage;
 
     if (avgCoverage >= target) {
-        console.log(chalk.green(`🎯 Objectif atteint ! (+${(avgCoverage - target).toFixed(2)}%)`));
+        console.log(chalk.green(`Objectif atteint ! (+${(avgCoverage - target).toFixed(2)}%)`));
     } else {
-        console.log(chalk.yellow(`🎯 Objectif: ${target}% (encore ${diff.toFixed(2)}% à couvrir)`));
+        console.log(chalk.yellow(`Objectif: ${target}% (encore ${diff.toFixed(2)}% à couvrir)`));
     }
 
     console.log();
 
     // Recommandations détaillées
     if (avgCoverage < 30) {
-        console.log(chalk.yellow('💡 Priorités urgentes:'));
+        console.log(chalk.yellow('Priorités urgentes:'));
         console.log(chalk.yellow('   1. Ajouter tests CLI commands (actuellement faible)'));
         console.log(chalk.yellow('   2. Tester Code Quality Tools'));
         console.log(chalk.yellow('   3. Couvrir Mirroring system'));
     } else if (avgCoverage < 50) {
-        console.log(chalk.yellow('💡 Améliorations suggérées:'));
+        console.log(chalk.yellow('Améliorations suggérées:'));
         console.log(chalk.yellow("   - Tester les cas d'erreur et edge cases"));
         console.log(chalk.yellow("   - Ajouter tests d'intégration"));
         console.log(chalk.yellow('   - Couvrir les branches conditionnelles'));
     } else if (avgCoverage < 70) {
-        console.log(chalk.green('✅ Bonne couverture ! Continuez.'));
-        console.log(chalk.yellow('💡 Pour aller plus loin:'));
+        console.log(chalk.green('Bonne couverture ! Continuez.'));
+        console.log(chalk.yellow('Pour aller plus loin:'));
         console.log(chalk.yellow('   - Tests de performance'));
         console.log(chalk.yellow('   - Tests end-to-end'));
     } else {
-        console.log(chalk.green('🎉 Excellente couverture de tests !'));
+        console.log(chalk.green('Excellente couverture de tests !'));
     }
 
     console.log();
