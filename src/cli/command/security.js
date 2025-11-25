@@ -1,11 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const execa = require('../../utils/exec-wrapper');
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-=======
 const { getChalk } = require('../../utils/chalk-wrapper');
->>>>>>> feat/tests
 
 function detectProjectTechnology() {
     const cwd = process.cwd();
@@ -97,10 +93,7 @@ module.exports = {
         }
     ],
     action: async (options) => {
-<<<<<<< HEAD
-=======
         const chalk = getChalk();
->>>>>>> feat/tests
         console.log(chalk.blue('🔍 Vérification des vulnérabilités de sécurité dans les dépendances du projet...'));
 
         try {

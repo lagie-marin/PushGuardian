@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-const { validateCode } = require('../../core/validator');
-const errorCMD = require('../../core/errorCMD');
-=======
 const { validateCode } = require('../../core/validator');
 const errorCMD = require('../../core/errorCMD');
 const { getChalk } = require('../../utils/chalk-wrapper');
->>>>>>> feat/tests
 
 module.exports = {
     name: 'validate',
@@ -35,10 +29,7 @@ module.exports = {
         }
     ],
     action: async (argument, options) => {
-<<<<<<< HEAD
-=======
         const chalk = getChalk();
->>>>>>> feat/tests
         if (!options.silent) console.log(chalk.blue('🔍 Validation en cours...'));
         try {
             const result = await validateCode(argument, options);

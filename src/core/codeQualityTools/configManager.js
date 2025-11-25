@@ -1,13 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-const configGenerator = require('./configGenerator');
-=======
 const configGenerator = require('./configGenerator');
 const { getChalk } = require('../../utils/chalk-wrapper');
 const chalk = getChalk();
->>>>>>> feat/tests
 
 async function createGlobalConfig(selectedTools) {
     const eslintConfigPath = 'eslint.config.js';

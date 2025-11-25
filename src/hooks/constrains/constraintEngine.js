@@ -84,11 +84,8 @@ class ConstraintEngine {
             }
         }
 
-<<<<<<< HEAD
-=======
         let messageToValidate = message;
 
->>>>>>> feat/tests
         if (errors.length === 0 && typeof callback === 'function' && callback != null) {
             const info = await callback({
                 msg: message,
@@ -97,12 +94,6 @@ class ConstraintEngine {
             });
 
             if (!info.isValid) errors.push(...info.errors);
-<<<<<<< HEAD
-        } else if (errors.length === 0 && constraintsConfig.constraints) {
-            for (const [constraintName, param] of Object.entries(constraintsConfig.constraints)) {
-                const validator = this.constraints.get(constraintName);
-                if (!validator(message, param)) {
-=======
 
             // Utiliser la description extraite pour valider les contraintes
             if (info.description) {
@@ -115,7 +106,6 @@ class ConstraintEngine {
             for (const [constraintName, param] of Object.entries(constraintsConfig.constraints)) {
                 const validator = this.constraints.get(constraintName);
                 if (validator && !validator(messageToValidate, param)) {
->>>>>>> feat/tests
                     errors.push(this.getErrorMessage(constraintName, param));
                 }
             }

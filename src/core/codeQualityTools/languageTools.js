@@ -1,10 +1,6 @@
 const fs = require('fs');
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-=======
 const { getChalk } = require('../../utils/chalk-wrapper');
 const chalk = getChalk();
->>>>>>> feat/tests
 
 const LANGUAGE_TOOLS = {
     'JavaScript (ESLint)': {

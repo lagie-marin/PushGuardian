@@ -1,9 +1,5 @@
 const { loadConfig, saveConfig } = require('../../core/configManager');
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-=======
 const { getChalk } = require('../../utils/chalk-wrapper');
->>>>>>> feat/tests
 
 module.exports = {
     name: 'config',
@@ -14,10 +10,7 @@ module.exports = {
     ],
     options: [{ flags: '-l, --list', description: 'lister toute la configuration' }],
     action: async (key, value, options) => {
-<<<<<<< HEAD
-=======
         const chalk = getChalk();
->>>>>>> feat/tests
         if (options.list) {
             const config = loadConfig();
             console.log(chalk.blue('📋 Configuration actuelle:'));

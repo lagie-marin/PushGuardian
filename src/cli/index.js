@@ -13,19 +13,9 @@ fs.readdirSync(commandsDir).forEach((file) => {
     const command = require(path.join(commandsDir, file));
     const cmd = program.command(command.name).description(command.description);
 
-<<<<<<< HEAD
-    if (command.arguments) {
-        command.arguments.forEach((arg) => cmd.argument(arg.name, arg.description));
-    }
-
-    if (command.options) {
-        command.options.forEach((opt) => cmd.option(opt.flags, opt.description));
-    }
-=======
     if (command.arguments) command.arguments.forEach((arg) => cmd.argument(arg.name, arg.description));
 
     if (command.options) command.options.forEach((opt) => cmd.option(opt.flags, opt.description));
->>>>>>> feat/tests
     cmd.action(command.action);
 });
 

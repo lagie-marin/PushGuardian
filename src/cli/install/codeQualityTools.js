@@ -1,19 +1,12 @@
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-=======
->>>>>>> feat/tests
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const configAnalyzer = require('../../core/codeQualityTools/configAnalyzer');
 const fileDetector = require('../../core/codeQualityTools/fileDetector');
 const toolInstaller = require('../../core/codeQualityTools/toolInstaller');
 const languageTools = require('../../core/codeQualityTools/languageTools');
 const fs = require('fs');
-<<<<<<< HEAD
-=======
 const { getChalk } = require('../../utils/chalk-wrapper');
 
 const chalk = getChalk();
->>>>>>> feat/tests
 
 function createCodeQualityConfig(installedTools) {
     const config = {

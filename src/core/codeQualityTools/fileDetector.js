@@ -1,11 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-<<<<<<< HEAD
-const { default: chalk } = require('chalk');
-=======
 const { getChalk } = require('../../utils/chalk-wrapper');
 const chalk = getChalk();
->>>>>>> feat/tests
 
 async function detectFileTypes() {
     const detected = {
