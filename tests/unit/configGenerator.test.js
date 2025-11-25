@@ -587,4 +587,133 @@ describe('Core codeQualityTools - configGenerator', () => {
             expect(result).toBeDefined();
         });
     });
+
+    describe('generateMarkdownCode - conditions de retour null', () => {
+        test('doit retourner null si plugin markdown existe', () => {
+            const existingPlugins = new Set(['markdown']);
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateMarkdownCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit retourner null si config markdown existe', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set(['**/*.md']);
+
+            const result = configGenerator.generateMarkdownCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit générer config si ni plugin ni pattern', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateMarkdownCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).not.toBeNull();
+            expect(result).toContain('**/*.md');
+        });
+    });
+
+    describe('generateYAMLCode - conditions de retour null', () => {
+        test('doit retourner null si plugin yaml existe', () => {
+            const existingPlugins = new Set(['yaml']);
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit retourner null si pattern yaml existe', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set(['**/*.yaml']);
+
+            const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit retourner null si pattern yml existe', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set(['**/*.yml']);
+
+            const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit générer config si ni plugin ni pattern', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).not.toBeNull();
+            expect(result).toContain('**/*.yaml');
+        });
+    });
+
+    describe('generateHTMLCode - conditions de retour null', () => {
+        test('doit retourner null si plugin html existe', () => {
+            const existingPlugins = new Set(['html']);
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateHTMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit retourner null si config html existe', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set(['**/*.html']);
+
+            const result = configGenerator.generateHTMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit générer config si ni plugin ni pattern', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateHTMLCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).not.toBeNull();
+            expect(result).toContain('**/*.html');
+        });
+    });
+
+    describe('generateNuxtCode - conditions de retour null', () => {
+        test('doit retourner null si plugin nuxt existe', () => {
+            const existingPlugins = new Set(['nuxt']);
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateNuxtCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit retourner null si config nuxt existe', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set(['**/*.vue']);
+
+            const result = configGenerator.generateNuxtCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).toBeNull();
+        });
+
+        test('doit générer config si ni plugin ni pattern', () => {
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set();
+
+            const result = configGenerator.generateNuxtCode(existingPlugins, existingFilesPatterns);
+
+            expect(result).not.toBeNull();
+            expect(result).toContain('**/*.nuxt');
+        });
+    });
 });

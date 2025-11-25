@@ -1,8 +1,8 @@
 const { getChalk } = require('../../src/utils/chalk-wrapper');
+const chalk = getChalk();
 
 describe('Utils - chalk-wrapper', () => {
     test('getChalk doit retourner un objet chalk', () => {
-        const chalk = getChalk();
         expect(chalk).toBeDefined();
         expect(typeof chalk.red).toBe('function');
         expect(typeof chalk.green).toBe('function');
@@ -17,62 +17,52 @@ describe('Utils - chalk-wrapper', () => {
     });
 
     test('chalk.red doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.red('test');
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
     });
 
     test('chalk.green doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.green('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.yellow doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.yellow('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.blue doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.blue('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.cyan doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.cyan('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.magenta doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.magenta('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.white doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.white('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.gray doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.gray('test');
         expect(typeof result).toBe('string');
     });
 
     test('chalk.black doit retourner une chaîne', () => {
-        const chalk = getChalk();
         const result = chalk.black('test');
         expect(typeof result).toBe('string');
     });
 
     test('toutes les fonctions chalk doivent fonctionner avec des chaînes vides', () => {
-        const chalk = getChalk();
         expect(typeof chalk.red('')).toBe('string');
         expect(typeof chalk.green('')).toBe('string');
         expect(typeof chalk.blue('')).toBe('string');

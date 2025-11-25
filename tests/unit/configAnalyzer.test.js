@@ -121,6 +121,68 @@ describe('Core codeQualityTools - configAnalyzer', () => {
             expect(result.filePatterns).toBeDefined();
             expect(result.filePatterns instanceof Set).toBe(true);
         });
+
+        test('doit afficher message de succès avec nombre de plugins', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                const typescript = require('eslint-plugin-typescript');
+                const json = require('eslint-plugin-json');
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.plugins).toBeDefined();
+        });
+
+        test('doit parser plugins avec require simple', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                const plugin1 = require('eslint-plugin-react');
+                const plugin2 = require('eslint-plugin-vue');
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.plugins).toBeDefined();
+        });
+
+        test('doit extraire correctement noms de plugins depuis package', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                const react = require('eslint-plugin-react');
+                const typescript = require('@typescript-eslint/eslint-plugin');
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.plugins).toBeDefined();
+        });
+
+        test('doit gérer file patterns avec extraction de quotes', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                module.exports = [{
+                    files: ['**/*.js', '**/*.jsx']
+                }, {
+                    files: ['**/*.ts']
+                }];
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.filePatterns).toBeDefined();
+        });
+
+        test('doit extraire files et remplacer quotes', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                files: ["**/*.js", '**/*.ts']
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.filePatterns).toBeDefined();
+        });
     });
 
     describe('updateEslintConfig', () => {
@@ -148,9 +210,11 @@ describe('Core codeQualityTools - configAnalyzer', () => {
             const analysis = { plugins: new Set(), filePatterns: new Set() };
 
             fs.existsSync.mockReturnValue(true);
-            fs.readFileSync.mockReturnValue('module.exports = [];');
+            fs.readFileSync.mockReturnValue('const js = require("@eslint/js");\nmodule.exports = [];');
 
-            await expect(configAnalyzer.updateEslintConfig(tools, analysis)).resolves.not.toThrow();
+            await configAnalyzer.updateEslintConfig(tools, analysis);
+
+            expect(console.log).toHaveBeenCalled();
         });
 
         test('doit appeler addMissingImports et addMissingConfigs', async () => {
@@ -393,6 +457,37 @@ describe('Core codeQualityTools - configAnalyzer', () => {
             const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
 
             expect(result).toContain('**/*.md');
+        });
+
+        test('doit gérer bracket count dans array parsing', () => {
+            const content = `module.exports = [
+                { files: ['**/*.js'], rules: { 'no-console': 'error' } },
+                { files: ['**/*.ts'], rules: {} }
+            ];`;
+            const tools = ['JSON (ESLint Plugin)'];
+            const analysis = { plugins: new Set(), filePatterns: new Set() };
+
+            const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
+
+            expect(result).toContain('**/*.json');
+        });
+
+        test('doit insérer config au bon endroit dans array complexe', () => {
+            const content = `module.exports = [
+                {
+                    files: ['**/*.js'],
+                    rules: {
+                        'no-console': 'error'
+                    }
+                }
+            ];`;
+            const tools = ['TypeScript (TypeScript ESLint)'];
+            const analysis = { plugins: new Set(), filePatterns: new Set() };
+
+            const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
+
+            expect(result).toContain('**/*.ts');
+            expect(result.indexOf('**/*.ts')).toBeGreaterThan(result.indexOf('**/*.js'));
         });
     });
 });

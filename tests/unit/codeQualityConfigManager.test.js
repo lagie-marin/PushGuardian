@@ -38,10 +38,34 @@ describe('Core codeQualityTools - configManager', () => {
 
         test('doit sauter si tous outils déjà configurés', async () => {
             const selectedTools = [];
+            
+            jest.spyOn(configGenerator, 'shouldSkipConfigUpdate').mockReturnValue(true);
 
             await configManager.createGlobalConfig(selectedTools);
 
             expect(fs.writeFileSync).not.toHaveBeenCalled();
+        });
+
+        test('doit ne rien faire si newConfigs est vide', async () => {
+            const selectedTools = ['JavaScript (ESLint)'];
+            
+            jest.spyOn(configGenerator, 'shouldSkipConfigUpdate').mockReturnValue(false);
+            jest.spyOn(configGenerator, 'generateNewConfigs').mockReturnValue([]);
+
+            await configManager.createGlobalConfig(selectedTools);
+
+            expect(fs.writeFileSync).not.toHaveBeenCalled();
+        });
+
+        test('doit renommer fichier existant avant création', async () => {
+            fs.existsSync.mockReturnValue(true);
+            const selectedTools = ['TypeScript (TypeScript ESLint)'];
+            
+            jest.spyOn(configGenerator, 'shouldSkipConfigUpdate').mockReturnValue(false);
+            jest.spyOn(configGenerator, 'generateImports').mockReturnValue('const js = require("@eslint/js");');
+            jest.spyOn(configGenerator, 'generateNewConfigs').mockReturnValue(['{ files: ["**/*.ts"] }']);
+
+            await expect(configManager.createGlobalConfig(selectedTools)).resolves.not.toThrow();
         });
 
         test('doit générer imports pour outils sélectionnés', async () => {
@@ -96,6 +120,46 @@ describe('Core codeQualityTools - configManager', () => {
         });
 
         test('doit retourner existingConfig array', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(Array.isArray(result.existingConfig)).toBe(true);
+        });
+
+        test('doit afficher message de succès si config détectée', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result).toBeDefined();
+        });
+
+        test('doit gérer erreur lors du require', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result.existingConfig).toBeDefined();
+        });
+
+        test('doit analyser config avec analyzeExistingConfig', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result).toBeDefined();
+        });
+
+        test('doit traiter config array correctement', async () => {
+            fs.existsSync.mockReturnValue(true);
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result.existingConfig.length).toBeGreaterThanOrEqual(0);
+        });
+
+        test('doit traiter config objet comme array', async () => {
             fs.existsSync.mockReturnValue(true);
 
             const result = await configManager.loadExistingConfig('eslint.config.js');

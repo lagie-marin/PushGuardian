@@ -14,12 +14,15 @@ jest.mock('../../src/utils/chalk-wrapper', () => ({
         green: (msg) => msg,
         blue: (msg) => msg,
         yellow: (msg) => msg,
-        gray: (msg) => msg
+        gray: (msg) => msg,
+        cyan: (msg) => msg
     })
 }));
+jest.mock('../../src/core/interactiveMenu/interactiveMenu');
 
 const { getEnv, saveEnv } = require('../../src/core/module/env-loader');
 const mirroring = require('../../src/cli/install/mirroring');
+const interactiveMenu = require('../../src/core/interactiveMenu/interactiveMenu');
 
 describe('CLI Install - mirroring', () => {
     beforeEach(() => {
@@ -35,6 +38,9 @@ describe('CLI Install - mirroring', () => {
         fs.existsSync.mockReturnValue(false);
         fs.readFileSync.mockReturnValue('{}');
         fs.writeFileSync.mockImplementation(() => {});
+
+        // Mock interactiveMenu
+        interactiveMenu.mockResolvedValue([]);
     });
 
     afterEach(() => {
@@ -267,6 +273,316 @@ describe('CLI Install - mirroring', () => {
 
             expect(console.log).toHaveBeenCalledWith(
                 expect.stringContaining('Configuration du système de mirroring mise à jour')
+            );
+        });
+
+        test('doit gérer config JSON invalide', () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue('invalid json {');
+
+            mirroring.createMirroringConfig(['GitHub'], {}, {});
+
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            expect(configWrites.length).toBeGreaterThan(0);
+        });
+
+        test('doit inclure toutes les plateformes dans config', () => {
+            mirroring.createMirroringConfig(['GitHub'], {}, {});
+
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            const savedConfig = JSON.parse(configWrites[0][1]);
+
+            expect(savedConfig.mirroring.platforms.github).toBeDefined();
+            expect(savedConfig.mirroring.platforms.gitlab).toBeDefined();
+            expect(savedConfig.mirroring.platforms.bitbucket).toBeDefined();
+            expect(savedConfig.mirroring.platforms.azure).toBeDefined();
+        });
+
+        test('doit activer uniquement plateformes sélectionnées', () => {
+            mirroring.createMirroringConfig(['GitLab'], {}, {});
+
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            const savedConfig = JSON.parse(configWrites[0][1]);
+
+            expect(savedConfig.mirroring.platforms.gitlab.enabled).toBe(true);
+            expect(savedConfig.mirroring.platforms.github.enabled).toBe(false);
+            expect(savedConfig.mirroring.platforms.bitbucket.enabled).toBe(false);
+        });
+    });
+
+    describe('askCredentials', () => {
+        let mockRl;
+
+        beforeEach(() => {
+            const readline = require('readline');
+            mockRl = {
+                question: jest.fn(),
+                close: jest.fn()
+            };
+            readline.createInterface.mockReturnValue(mockRl);
+        });
+
+        test('doit demander token pour GitHub', async () => {
+            mockRl.question.mockImplementation((question, callback) => {
+                callback('test_github_token');
+            });
+
+            const promise = mirroring.askCredentials('github');
+            const result = await promise;
+
+            expect(result).toEqual({ token: 'test_github_token' });
+            expect(mockRl.question).toHaveBeenCalledWith(
+                expect.stringContaining('token GitHub'),
+                expect.any(Function)
+            );
+            expect(mockRl.close).toHaveBeenCalled();
+        });
+
+        test('doit demander token pour GitLab', async () => {
+            mockRl.question.mockImplementation((question, callback) => {
+                callback('test_gitlab_token');
+            });
+
+            const result = await mirroring.askCredentials('gitlab');
+
+            expect(result).toEqual({ token: 'test_gitlab_token' });
+            expect(mockRl.question).toHaveBeenCalledWith(
+                expect.stringContaining('token GitLab'),
+                expect.any(Function)
+            );
+        });
+
+        test('doit demander username et password pour BitBucket', async () => {
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) {
+                    callback('bitbucket_user');
+                } else {
+                    callback('bitbucket_pass');
+                }
+            });
+
+            const result = await mirroring.askCredentials('bitbucket');
+
+            expect(result).toEqual({
+                username: 'bitbucket_user',
+                password: 'bitbucket_pass'
+            });
+            expect(mockRl.question).toHaveBeenCalledTimes(2);
+        });
+
+        test('doit demander URL et token pour Azure DevOps', async () => {
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) {
+                    callback('https://dev.azure.com/org');
+                } else {
+                    callback('azure_token');
+                }
+            });
+
+            const result = await mirroring.askCredentials('azure');
+
+            expect(result).toEqual({
+                url: 'https://dev.azure.com/org',
+                token: 'azure_token'
+            });
+            expect(mockRl.question).toHaveBeenCalledTimes(2);
+        });
+
+        test('doit retourner objet vide pour plateforme inconnue', async () => {
+            const result = await mirroring.askCredentials('unknown');
+
+            expect(result).toEqual({});
+            expect(mockRl.close).toHaveBeenCalled();
+            expect(mockRl.question).not.toHaveBeenCalled();
+        });
+
+        test('doit gérer plateforme avec espaces', async () => {
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) {
+                    callback('https://dev.azure.com/test');
+                } else {
+                    callback('test_token');
+                }
+            });
+
+            const result = await mirroring.askCredentials('azure');
+
+            expect(result).toEqual({
+                url: 'https://dev.azure.com/test',
+                token: 'test_token'
+            });
+        });
+    });
+
+    describe('saveCredentialsToEnv - edge cases', () => {
+        test('doit gérer credentials GitLab', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                gitlab: { token: 'gitlab_token_123' }
+            });
+
+            expect(saveEnv).toHaveBeenCalledWith('GITLAB_TOKEN', 'gitlab_token_123', '.env');
+        });
+
+        test('ne doit pas sauvegarder si pas de token', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                github: {}
+            });
+
+            expect(saveEnv).not.toHaveBeenCalledWith('GITHUB_TOKEN', expect.anything(), expect.anything());
+        });
+
+        test('ne doit pas écraser credentials BitBucket existants', () => {
+            getEnv.mockImplementation((key) => {
+                if (key === 'BITBUCKET_USERNAME') return 'existing_user';
+                return '';
+            });
+
+            mirroring.saveCredentialsToEnv({
+                bitbucket: { username: 'new_user', password: 'new_pass' }
+            });
+
+            expect(saveEnv).not.toHaveBeenCalledWith('BITBUCKET_USERNAME', expect.anything(), expect.anything());
+        });
+
+        test('ne doit pas écraser credentials Azure existants', () => {
+            getEnv.mockImplementation((key) => {
+                if (key === 'AZURE_DEVOPS_URL') return 'https://existing.com';
+                return '';
+            });
+
+            mirroring.saveCredentialsToEnv({
+                azure: { url: 'https://new.com', token: 'new_token' }
+            });
+
+            expect(saveEnv).not.toHaveBeenCalledWith('AZURE_DEVOPS_URL', expect.anything(), expect.anything());
+        });
+
+        test('doit afficher message de log pour chaque plateforme', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                github: { token: 'gh_token' },
+                gitlab: { token: 'gl_token' }
+            });
+
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Sauvegarde des credentials pour github'));
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Sauvegarde des credentials pour gitlab'));
+        });
+    });
+
+    describe('installMirroringTools', () => {
+        let mockRl;
+
+        beforeEach(() => {
+            const readline = require('readline');
+            mockRl = {
+                question: jest.fn(),
+                close: jest.fn()
+            };
+            readline.createInterface.mockReturnValue(mockRl);
+        });
+
+        test('doit afficher message si déjà installé', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(JSON.stringify({
+                install: { mirroring: true }
+            }));
+
+            await mirroring.installMirroringTools();
+
+            expect(console.log).toHaveBeenCalledWith(
+                expect.stringContaining('Le système de mirroring est déjà installé')
+            );
+        });
+
+        test('doit afficher message si aucune plateforme sélectionnée', async () => {
+            interactiveMenu.mockResolvedValue([]);
+
+            await mirroring.installMirroringTools();
+
+            expect(console.log).toHaveBeenCalledWith(
+                expect.stringContaining('Aucune plateforme sélectionnée')
+            );
+        });
+
+        test('doit configurer une seule plateforme', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub']);
+            getEnv.mockReturnValue('test_token');
+            
+            // Mock askForDefaults pour répondre avec plateformes valides puis réponses vides
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) callback('github'); // source platform
+                else if (questionCount === 2) callback('gitlab'); // target platform
+                else callback(''); // réponses vides pour les questions optionnelles
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(interactiveMenu).toHaveBeenCalled();
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            expect(configWrites.length).toBeGreaterThan(0);
+        });
+
+        test('doit configurer plusieurs plateformes', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub', 'GitLab']);
+            getEnv.mockImplementation((key) => {
+                if (key === 'GITHUB_TOKEN') return 'github_token';
+                if (key === 'GITLAB_TOKEN') return 'gitlab_token';
+                return '';
+            });
+            
+            // Mock askForDefaults pour répondre avec plateformes valides puis réponses vides
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) callback('github');
+                else if (questionCount === 2) callback('gitlab');
+                else callback('');
+            });
+
+            await mirroring.installMirroringTools();
+
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            expect(configWrites.length).toBeGreaterThan(0);
+        });
+
+        test('doit appeler interactiveMenu avec bonnes options', async () => {
+            // Mock askForDefaults
+            let questionCount = 0;
+            mockRl.question.mockImplementation((question, callback) => {
+                questionCount++;
+                if (questionCount === 1) callback('github');
+                else if (questionCount === 2) callback('gitlab');
+                else callback('');
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(interactiveMenu).toHaveBeenCalledWith(
+                'Choisissez les plateformes à activer pour le mirroring:',
+                ['GitHub', 'GitLab', 'BitBucket', 'Azure DevOps']
             );
         });
     });

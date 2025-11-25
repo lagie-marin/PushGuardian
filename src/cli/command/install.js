@@ -2,8 +2,8 @@ const { installHooks } = require('../install/hooks');
 const interactiveMenu = require('../../core/interactiveMenu/interactiveMenu');
 const { installCodeQualityTools } = require('../install/codeQualityTools');
 const { installMirroringTools } = require('../install/mirroring');
-const getChalk = require('../../utils/chalk-wrapper');
 const { loadConfig } = require('../../core/configManager');
+const { getChalk } = require('../../utils/chalk-wrapper');
 
 module.exports = {
     name: 'install',
@@ -55,7 +55,7 @@ module.exports = {
                 (options.mirroring && options.skipMirroring)
             ) {
                 console.log(
-                    getChalk().red(
+                    chalk.red(
                         '❌ Options conflictuelles. Veuillez vérifier vos options.\n\t\tVous ne pouvez pas utiliser --hooks et --skip-hooks, --code-quality et --skip-code-quality, ou --mirroring et --skip-mirroring simultanément.'
                     )
                 );
