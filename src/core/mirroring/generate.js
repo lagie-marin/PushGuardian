@@ -52,7 +52,7 @@ jobs:
         mirror_cmd="npx pushguardian mirror"
         mirror_cmd="$mirror_cmd --source \${{ vars.SOURCE_PLATFORM }}"
         mirror_cmd="$mirror_cmd --target \${{ vars.TARGET_PLATFORM }}"
-        mirror_cmd="$mirror_cmd --repo \${{ vars.REPO_NAME }}"
+        mirror_cmd="$mirror_cmd --repo \${{ vars.TARGET_REPO }}"
         mirror_cmd="$mirror_cmd --source-owner \${{ vars.SOURCE_OWNER }}"
         mirror_cmd="$mirror_cmd --target-owner \${{ vars.TARGET_OWNER }}"
 
@@ -67,7 +67,7 @@ jobs:
         echo "Executing: $mirror_cmd"
         eval $mirror_cmd
       env:
-        GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        GIT_TOKEN: \${{ secrets.GIT_TOKEN }}
         GITLAB_TOKEN: \${{ secrets.GITLAB_TOKEN }}
         BITBUCKET_USERNAME: \${{ secrets.BITBUCKET_USERNAME }}
         BITBUCKET_PASSWORD: \${{ secrets.BITBUCKET_PASSWORD }}

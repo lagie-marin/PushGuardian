@@ -22,7 +22,7 @@ class SyncManager {
 
         if (this.config.github && this.config.github.enabled) {
             try {
-                const token = getEnv('GITHUB_TOKEN');
+                const token = getEnv('GIT_TOKEN');
                 clients.github = new Octokit({ auth: token });
             } catch (error) {
                 console.warn(`⚠️  Impossible d'initialiser le client GitHub: ${error.message}`);
@@ -115,7 +115,7 @@ class SyncManager {
             return;
         }
 
-        const sourceToken = getEnv('GITHUB_TOKEN');
+        const sourceToken = getEnv('GIT_TOKEN');
         const targetToken = sourceToken;
 
         if (!sourceToken || !targetToken) {

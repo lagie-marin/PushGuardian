@@ -42,9 +42,11 @@ module.exports = {
             const sourcePlatform = options.source || getEnv('SOURCE_PLATFORM');
             const targetPlatform = options.target || getEnv('TARGET_PLATFORM');
             const sourceRepo = options.sourceRepo || getEnv('SOURCE_REPO');
-            const targetRepo = options.targetRepo || getEnv('TARGET_REPO');
+            const targetRepo = options.targetRepo || options.repo || getEnv('TARGET_REPO');
             const sourceOwner = options.sourceOwner || getEnv('SOURCE_OWNER');
             const targetOwner = options.targetOwner || getEnv('TARGET_OWNER');
+
+            console.log(JSON.stringify(options));
 
             if (!sourcePlatform || !targetPlatform || !sourceRepo || !targetRepo || !sourceOwner || !targetOwner) {
                 console.log(
