@@ -24,6 +24,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout current repository
+      uses: actions/checkout@v4
+      with:
+        path: .
+
+    steps:
     - name: Checkout PushGuardian
       uses: actions/checkout@v4
       with:
@@ -33,9 +39,21 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22.20.0'
         cache: 'npm'
         cache-dependency-path: pushguardian/package-lock.json
+
+    - name: Install specific npm version
+      run: |
+        echo "Current npm version:"
+        npm --version
+        echo ""
+        echo "Installing npm 11.6.0..."
+        # Désinstaller la version actuelle et installer la version spécifique
+        npm install -g npm@11.6.0 --force
+        echo ""
+        echo "New npm version:"
+        npm --version
 
     - name: Install dependencies
       run: |
@@ -49,11 +67,15 @@ jobs:
 
     - name: Execute mirror command
       run: |
+        CURRENT_REPO="\${{ github.event.repository.name }}"
+        CURRENT_OWNER="\${{ github.event.repository.owner.login }}"
+        
         mirror_cmd="npx pushguardian mirror"
         mirror_cmd="$mirror_cmd --source \${{ vars.SOURCE_PLATFORM }}"
         mirror_cmd="$mirror_cmd --target \${{ vars.TARGET_PLATFORM }}"
+        mirror_cmd="$mirror_cmd --source-repo $CURRENT_REPO"
         mirror_cmd="$mirror_cmd --repo \${{ vars.TARGET_REPO }}"
-        mirror_cmd="$mirror_cmd --source-owner \${{ vars.SOURCE_OWNER }}"
+        mirror_cmd="$mirror_cmd --source-owner $CURRENT_OWNER"
         mirror_cmd="$mirror_cmd --target-owner \${{ vars.TARGET_OWNER }}"
 
         if [ "\${{ vars.SYNC_BRANCHES }}" = "true" ]; then
