@@ -45,7 +45,7 @@ describe('Core Mirroring - SyncManager', () => {
         // Mock environment variables - must return valid values
         getEnv.mockImplementation((key) => {
             const envVars = {
-                'GITHUB_TOKEN': 'github-token-123',
+                'GIT_TOKEN': 'github-token-123',
                 'GITLAB_TOKEN': 'gitlab-token-456',
                 'BITBUCKET_USERNAME': 'bb-user',
                 'BITBUCKET_PASSWORD': 'bb-pass',
@@ -181,7 +181,7 @@ describe('Core Mirroring - SyncManager', () => {
 
         test('doit afficher warning si init GitHub échoue', () => {
             getEnv.mockImplementation((key) => {
-                if (key === 'GITHUB_TOKEN') throw new Error('Token not found');
+                if (key === 'GIT_TOKEN') throw new Error('Token not found');
                 return 'token';
             });
             Octokit.mockClear();
@@ -355,7 +355,7 @@ describe('Core Mirroring - SyncManager', () => {
         });
 
         test('doit afficher warning si tokens manquants', async () => {
-            getEnv.mockReturnValue(''); // Return empty string for missing tokens
+            getEnv.mockImplementation((key) => (key === 'GIT_TOKEN' ? '' : 'token'));
 
             await syncManager.pushCodeToTarget('github', 'github', 'repo', 'repo', 'owner', 'owner');
 

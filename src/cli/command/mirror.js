@@ -46,7 +46,9 @@ module.exports = {
             const sourceOwner = options.sourceOwner || getEnv('SOURCE_OWNER');
             const targetOwner = options.targetOwner || getEnv('TARGET_OWNER');
 
-            console.log(`SP: ${sourcePlatform}\tTP: ${targetPlatform}\tSR: ${sourceRepo}\tTR: ${targetRepo}\tSO: ${sourceOwner}\tTO: ${targetOwner}`)
+            console.log(
+                `SP: ${sourcePlatform}\tTP: ${targetPlatform}\tSR: ${sourceRepo}\tTR: ${targetRepo}\tSO: ${sourceOwner}\tTO: ${targetOwner}`
+            );
 
             if (!sourcePlatform || !targetPlatform || !sourceRepo || !targetRepo || !sourceOwner || !targetOwner) {
                 console.log(

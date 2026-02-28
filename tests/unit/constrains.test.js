@@ -94,6 +94,19 @@ describe('Hooks - constrains', () => {
 
             expect(process.exit).toHaveBeenCalledWith(1);
         });
+
+        test('doit ignorer une config hook nulle', async () => {
+            loadConfig.mockReturnValue({
+                hooks: {
+                    'commit-msg': null
+                }
+            });
+
+            const result = await constrains('commit-msg', '[feat]: ok');
+
+            expect(result.success).toBe(true);
+            expect(process.exit).not.toHaveBeenCalled();
+        });
     });
 
     describe('validateCommitMessage', () => {
@@ -232,6 +245,22 @@ describe('Hooks - constrains', () => {
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Erreur lors de la correction'));
             expect(process.exit).toHaveBeenCalledWith(1);
         });
+
+        test('doit retourner format invalide si autoStartWith actif sans fallback match', async () => {
+            const validationInfo = {
+                msg: 'message sans bracket',
+                type: ['feat'],
+                constraints: {
+                    autoStartWith: ': ',
+                    mustStartWith: ': '
+                }
+            };
+
+            const result = await validateCommitMessage(validationInfo);
+
+            expect(result.isValid).toBe(false);
+            expect(result.errors[0]).toContain("n'est pas correctement formaté");
+        });
     });
 
     describe('validateBranchName', () => {
@@ -285,6 +314,16 @@ describe('Hooks - constrains', () => {
 
             expect(console.log).toHaveBeenCalledWith('Erreur Git, validation ignorée:', 'Git error');
             expect(result.isValid).toBe(true);
+        });
+
+        test('doit ignorer un nom de branche non matché', async () => {
+            execa.mockResolvedValue({ stdout: '////' });
+
+            const result = await validateBranchName({ type: ['feat'] });
+
+            expect(result.isValid).toBe(true);
+            expect(result.errors).toEqual([]);
+            expect(result.branchDescription).toBe('');
         });
     });
 
@@ -361,6 +400,22 @@ describe('Hooks - constrains', () => {
             await validatePrePush();
 
             expect(execa).toHaveBeenCalledWith('npx', ['pushguardian', 'validate', '-s']);
+        });
+
+        test('ne doit pas quitter si la branche distante est synchronisée', async () => {
+            execa.mockImplementation((cmd, args) => {
+                if (args[0] === 'rev-parse') return Promise.resolve({ stdout: 'main' });
+                if (args[0] === 'ls-remote') return Promise.resolve({ stdout: 'refs/heads/main' });
+                if (args[0] === 'fetch') return Promise.resolve({ stdout: '' });
+                if (args[0] === 'rev-list') return Promise.resolve({ stdout: '0' });
+                if (cmd === 'npx') return Promise.resolve({ stdout: '' });
+                return Promise.resolve({ stdout: '' });
+            });
+
+            const result = await validatePrePush();
+
+            expect(process.exit).not.toHaveBeenCalled();
+            expect(result.success).toBe(true);
         });
     });
 

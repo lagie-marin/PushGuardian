@@ -105,6 +105,19 @@ describe('CLI Install - codeQualityTools', () => {
             expect(result).toEqual([]);
         });
 
+        test('doit retourner tableau vide si availableTools est vide', async () => {
+            const filterSpy = jest.spyOn(Array.prototype, 'filter');
+            filterSpy
+                .mockImplementationOnce(() => []) // configuredTools
+                .mockImplementationOnce(() => []) // detectedTools
+                .mockImplementationOnce(() => []); // availableTools
+
+            const result = await codeQualityTools.installCodeQualityTools();
+
+            expect(result).toEqual([]);
+            filterSpy.mockRestore();
+        });
+
         test('doit utiliser outils pré-sélectionnés', async () => {
             const preselected = ['JavaScript (ESLint)', 'JSON (ESLint Plugin)'];
 
@@ -250,6 +263,28 @@ describe('CLI Install - codeQualityTools', () => {
             ]);
 
             expect(result).toEqual(['JavaScript (ESLint)', 'TypeScript (TypeScript ESLint)']);
+        });
+
+        test('doit ignorer un outil inconnu sans appeler installLanguageTools', async () => {
+            interactiveMenu.mockResolvedValue([99]);
+
+            const result = await codeQualityTools.installCodeQualityTools(false);
+
+            expect(result).toEqual([undefined]);
+            expect(toolInstaller.installLanguageTools).not.toHaveBeenCalled();
+            expect(configAnalyzer.updateEslintConfig).toHaveBeenCalledWith([undefined], expect.any(Object));
+        });
+
+        test('doit bypass le menu quand all=true', async () => {
+            await codeQualityTools.installCodeQualityTools(true);
+
+            expect(interactiveMenu).not.toHaveBeenCalled();
+        });
+
+        test('doit appeler le menu quand all est undefined', async () => {
+            await codeQualityTools.installCodeQualityTools(undefined, []);
+
+            expect(interactiveMenu).toHaveBeenCalled();
         });
     });
 

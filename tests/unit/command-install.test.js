@@ -187,4 +187,61 @@ describe('CLI Command - install', () => {
         expect(installHooks).toHaveBeenCalled();
         expect(installCodeQualityTools).toHaveBeenCalledWith(undefined, ['TypeScript (TypeScript ESLint)']);
     });
+
+    test('doit utiliser pré-sélections hook/CQT/mirroring sans menu interactif', async () => {
+        loadConfig.mockReturnValue({
+            install: {
+                hooks: true,
+                CQT: ['JavaScript (ESLint)'],
+                mirroring: true
+            }
+        });
+
+        await installCommand.action({ file: 'full.config.json' });
+
+        expect(interactiveMenu).not.toHaveBeenCalled();
+        expect(installHooks).toHaveBeenCalled();
+        expect(installCodeQualityTools).toHaveBeenCalledWith(undefined, ['JavaScript (ESLint)']);
+        expect(installMirroringTools).toHaveBeenCalled();
+    });
+
+    test('doit installer mirroring depuis pré-sélection fichier seule', async () => {
+        loadConfig.mockReturnValue({
+            install: {
+                mirroring: true
+            }
+        });
+
+        await installCommand.action({ file: 'mirroring-only.json' });
+
+        expect(installMirroringTools).toHaveBeenCalled();
+        expect(installHooks).not.toHaveBeenCalled();
+        expect(installCodeQualityTools).not.toHaveBeenCalled();
+    });
+
+    test('doit garder uniquement mirroring avec options mixtes', async () => {
+        await installCommand.action({ mirroring: true, skipCodeQuality: true });
+
+        expect(installMirroringTools).toHaveBeenCalled();
+        expect(installHooks).not.toHaveBeenCalled();
+        expect(installCodeQualityTools).not.toHaveBeenCalled();
+    });
+
+    test('doit exécuter item Mirroring sélectionné depuis menu', async () => {
+        interactiveMenu.mockResolvedValue(['Mirroring']);
+
+        await installCommand.action({});
+
+        expect(installMirroringTools).toHaveBeenCalled();
+    });
+
+    test('doit ignorer un item inconnu du menu', async () => {
+        interactiveMenu.mockResolvedValue(['Unknown Module']);
+
+        await installCommand.action({});
+
+        expect(installHooks).not.toHaveBeenCalled();
+        expect(installCodeQualityTools).not.toHaveBeenCalled();
+        expect(installMirroringTools).not.toHaveBeenCalled();
+    });
 });

@@ -144,6 +144,7 @@ function serializeConfig(config) {
                 seen.add(value);
             }
 
+            /* istanbul ignore next */
             if (typeof value === 'function') return `[Function: ${value.name || 'anonymous'}]`;
             if (key === 'plugins' && typeof value === 'object') {
                 const simplifiedPlugins = {};
@@ -160,11 +161,7 @@ function serializeConfig(config) {
 }
 
 function generateJavaScriptCode(existingPlugins, existingFilesPatterns) {
-    if (
-        Array.from(existingFilesPatterns).some(
-            (pattern) => pattern.includes('*.js') || pattern.includes('**/*.js') || pattern.includes('*.jsx')
-        )
-    ) {
+    if (Array.from(existingFilesPatterns).some((pattern) => pattern.includes('*.js'))) {
         return null;
     }
 

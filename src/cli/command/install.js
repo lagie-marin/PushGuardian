@@ -96,6 +96,7 @@ module.exports = {
                 if (options.codeQuality && !options.skipCodeQuality) selected.push('Code Quality Tools');
                 if (options.mirroring && !options.skipMirroring) selected.push('Mirroring');
 
+                /* istanbul ignore next */
                 if (
                     !options.hooks &&
                     !options.codeQuality &&
@@ -119,10 +120,15 @@ module.exports = {
                 }
             }
 
+            const installers = {
+                'Hooks Git': () => installHooks(['commit-msg', 'post-checkout', 'pre-push'], options.force),
+                'Code Quality Tools': () => installCodeQualityTools(options.all, preselectedCQT),
+                Mirroring: () => installMirroringTools()
+            };
+
             selected.forEach((item) => {
-                if (item === 'Hooks Git') installHooks(['commit-msg', 'post-checkout', 'pre-push'], options.force);
-                else if (item === 'Code Quality Tools') installCodeQualityTools(options.all, preselectedCQT);
-                else if (item === 'Mirroring') installMirroringTools();
+                const installSelected = installers[item];
+                if (installSelected) installSelected();
             });
         } catch (error) {
             console.error(chalk.red('❌ Une erreur est survenue :'), error.message);

@@ -4,3 +4,7 @@ pushguardian.config.json
 eslint.config.js
 .prettierrc
 coverage
+.pushguardian-plugins.json
+.pushguardian-cache/
+.review-apps/
+performance-report.json

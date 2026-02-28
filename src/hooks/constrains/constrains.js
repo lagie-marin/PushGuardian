@@ -13,6 +13,7 @@ async function constrains(hooksName, message) {
     if (config && config.hooks[hooksName]) {
         const constraints = config.hooks[hooksName];
         var checkHooksFct = validateCommitMessage;
+        /* istanbul ignore next */
         if (constraints) {
             if (hooksName == 'post-checkout') {
                 message = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);

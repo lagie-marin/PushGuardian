@@ -87,7 +87,7 @@ async function installCodeQualityTools(all = false, preselectedTools = []) {
             selected = preselectedTools.filter((tool) => availableTools.includes(tool));
         } else if (all) {
             selected = availableTools;
-        } else if (!all) {
+        } else {
             selected = await interactiveMenu(
                 'Choisissez les langages à analyser avec ESLint:',
                 availableTools,

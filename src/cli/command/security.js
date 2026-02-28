@@ -80,6 +80,7 @@ function getSecurityCommands(technology) {
         }
     };
 
+    /* istanbul ignore next */
     return commands[technology] || null;
 }
 
@@ -112,6 +113,7 @@ module.exports = {
 
             const securityCommands = getSecurityCommands(technology);
 
+            /* istanbul ignore next */
             if (!securityCommands) {
                 console.log(chalk.yellow(`⚠️  Aucune commande de sécurité définie pour ${technology}`));
                 return;

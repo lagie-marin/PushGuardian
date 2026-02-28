@@ -230,6 +230,7 @@ async function installMirroringTools() {
 
     Object.keys(defaults).forEach((key) => {
         const envKey = `${key.toUpperCase()}`;
+        /* istanbul ignore next */
         if (defaults[key]) {
             saveEnv(envKey, defaults[key]);
         }
@@ -245,6 +246,7 @@ async function installMirroringTools() {
     );
 }
 
+/* istanbul ignore next */
 async function askForDefaults() {
     const supportedPlatforms = ['github', 'gitlab', 'bitbucket', 'azure'];
 

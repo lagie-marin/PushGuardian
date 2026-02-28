@@ -132,6 +132,11 @@ describe('CLI Install - mirroring', () => {
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('GITHUB_TOKEN=votre_token_ici'));
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('GITLAB_TOKEN=votre_token_ici'));
         });
+
+        test('doit retourner des credentials vides pour plateforme inconnue', () => {
+            const result = mirroring.getCredentialsFromEnv('unknown');
+            expect(result).toEqual({});
+        });
     });
 
     describe('saveCredentialsToEnv', () => {
@@ -314,6 +319,20 @@ describe('CLI Install - mirroring', () => {
             expect(savedConfig.mirroring.platforms.github.enabled).toBe(false);
             expect(savedConfig.mirroring.platforms.bitbucket.enabled).toBe(false);
         });
+
+        test('doit ignorer une plateforme inconnue', () => {
+            mirroring.createMirroringConfig(['Unknown Platform'], {}, {});
+
+            const configWrites = fs.writeFileSync.mock.calls.filter(
+                call => call[0] === 'pushguardian.config.json'
+            );
+            const savedConfig = JSON.parse(configWrites[0][1]);
+
+            expect(savedConfig.mirroring.platforms.github.enabled).toBe(false);
+            expect(savedConfig.mirroring.platforms.gitlab.enabled).toBe(false);
+            expect(savedConfig.mirroring.platforms.bitbucket.enabled).toBe(false);
+            expect(savedConfig.mirroring.platforms.azure.enabled).toBe(false);
+        });
     });
 
     describe('askCredentials', () => {
@@ -484,6 +503,50 @@ describe('CLI Install - mirroring', () => {
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Sauvegarde des credentials pour github'));
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Sauvegarde des credentials pour gitlab'));
         });
+
+        test('doit gérer bitbucket partiel (username sans password)', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                bitbucket: { username: 'partial_user' }
+            });
+
+            expect(saveEnv).toHaveBeenCalledWith('BITBUCKET_USERNAME', 'partial_user', '.env');
+            expect(saveEnv).not.toHaveBeenCalledWith('BITBUCKET_PASSWORD', expect.anything(), '.env');
+        });
+
+        test('doit gérer azure partiel (url sans token)', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                azure: { url: 'https://dev.azure.com/partial' }
+            });
+
+            expect(saveEnv).toHaveBeenCalledWith('AZURE_DEVOPS_URL', 'https://dev.azure.com/partial', '.env');
+            expect(saveEnv).not.toHaveBeenCalledWith('AZURE_DEVOPS_TOKEN', expect.anything(), '.env');
+        });
+
+        test('ne doit rien sauvegarder si bitbucket est vide', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                bitbucket: {}
+            });
+
+            expect(saveEnv).not.toHaveBeenCalledWith('BITBUCKET_USERNAME', expect.anything(), '.env');
+            expect(saveEnv).not.toHaveBeenCalledWith('BITBUCKET_PASSWORD', expect.anything(), '.env');
+        });
+
+        test('ne doit rien sauvegarder si azure est vide', () => {
+            getEnv.mockReturnValue('');
+
+            mirroring.saveCredentialsToEnv({
+                azure: {}
+            });
+
+            expect(saveEnv).not.toHaveBeenCalledWith('AZURE_DEVOPS_URL', expect.anything(), '.env');
+            expect(saveEnv).not.toHaveBeenCalledWith('AZURE_DEVOPS_TOKEN', expect.anything(), '.env');
+        });
     });
 
     describe('installMirroringTools', () => {
@@ -584,6 +647,85 @@ describe('CLI Install - mirroring', () => {
                 'Choisissez les plateformes à activer pour le mirroring:',
                 ['GitHub', 'GitLab', 'BitBucket', 'Azure DevOps']
             );
+        });
+
+        test('doit redemander une plateforme par défaut invalide', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub']);
+            getEnv.mockReturnValue('test_token');
+
+            const answers = ['invalid-platform', 'github', 'gitlab', '', '', '', ''];
+            mockRl.question.mockImplementation((question, callback) => {
+                callback(answers.shift() || '');
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(console.log).toHaveBeenCalledWith(
+                expect.stringContaining('Valeur invalide. Plateformes supportées')
+            );
+        });
+
+        test('doit sauvegarder toutes les valeurs par défaut non vides dans .env', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub']);
+            getEnv.mockReturnValue('test_token');
+
+            const answers = ['github', 'gitlab', 'repo-src', 'owner-src', 'repo-dst', 'owner-dst'];
+            mockRl.question.mockImplementation((question, callback) => {
+                callback(answers.shift() || '');
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(saveEnv).toHaveBeenCalledWith('SOURCE_PLATFORM', 'github');
+            expect(saveEnv).toHaveBeenCalledWith('TARGET_PLATFORM', 'gitlab');
+            expect(saveEnv).toHaveBeenCalledWith('SOURCE_REPO', 'repo-src');
+            expect(saveEnv).toHaveBeenCalledWith('SOURCE_OWNER', 'owner-src');
+            expect(saveEnv).toHaveBeenCalledWith('TARGET_REPO', 'repo-dst');
+            expect(saveEnv).toHaveBeenCalledWith('TARGET_OWNER', 'owner-dst');
+        });
+
+        test('ne doit pas sauvegarder de valeur par défaut vide', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub']);
+            getEnv.mockReturnValue('test_token');
+
+            const answers = ['github', 'gitlab', '', '', '', ''];
+            mockRl.question.mockImplementation((question, callback) => {
+                callback(answers.shift() || '');
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(saveEnv).toHaveBeenCalledWith('SOURCE_PLATFORM', 'github');
+            expect(saveEnv).toHaveBeenCalledWith('TARGET_PLATFORM', 'gitlab');
+            expect(saveEnv).not.toHaveBeenCalledWith('SOURCE_REPO', expect.anything());
+            expect(saveEnv).not.toHaveBeenCalledWith('TARGET_OWNER', expect.anything());
+        });
+
+        test('doit continuer si déjà installé mais install.mirroring=false', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(JSON.stringify({ install: { mirroring: false } }));
+            interactiveMenu.mockResolvedValue([]);
+
+            await mirroring.installMirroringTools();
+
+            expect(console.log).toHaveBeenCalledWith(
+                expect.stringContaining('Aucune plateforme sélectionnée')
+            );
+        });
+
+        test('doit gérer des réponses vides pour toutes les valeurs par défaut', async () => {
+            interactiveMenu.mockResolvedValue(['GitHub']);
+            getEnv.mockReturnValue('test_token');
+
+            const answers = ['', '', '', '', '', ''];
+            mockRl.question.mockImplementation((question, callback) => {
+                callback(answers.shift() || '');
+            });
+
+            await mirroring.installMirroringTools();
+
+            expect(saveEnv).not.toHaveBeenCalledWith('SOURCE_PLATFORM', expect.anything());
+            expect(saveEnv).not.toHaveBeenCalledWith('TARGET_PLATFORM', expect.anything());
         });
     });
 });

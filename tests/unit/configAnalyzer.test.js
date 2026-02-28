@@ -1,4 +1,4 @@
-const fs = require('fs');
+let fs = require('fs');
 
 jest.mock('fs');
 
@@ -9,6 +9,7 @@ describe('Core codeQualityTools - configAnalyzer', () => {
         jest.clearAllMocks();
         jest.spyOn(console, 'log').mockImplementation(() => {});
         jest.resetModules();
+        fs = require('fs');
         
         fs.existsSync.mockReturnValue(false);
         fs.readFileSync.mockReturnValue('');
@@ -43,6 +44,8 @@ describe('Core codeQualityTools - configAnalyzer', () => {
 
             expect(result.plugins).toBeDefined();
             expect(result.filePatterns).toBeDefined();
+            expect(result.plugins.size).toBeGreaterThan(0);
+            expect(result.filePatterns.size).toBeGreaterThan(0);
         });
 
         test('doit détecter plugins eslint', async () => {
@@ -182,6 +185,51 @@ describe('Core codeQualityTools - configAnalyzer', () => {
             const result = await configAnalyzer.analyzeExistingConfig();
 
             expect(result.filePatterns).toBeDefined();
+        });
+
+        test('ne doit pas ajouter un require qui n\'est pas un eslint-plugin', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                const lodash = require('lodash');
+                const html = require('eslint-plugin-html');
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.plugins.has('lodash')).toBe(false);
+            expect(result.plugins.has('html')).toBe(true);
+        });
+
+        test('doit gérer un bloc files sans guillemets', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue(`
+                module.exports = [{ files: [SANS_QUOTES] }];
+            `);
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.filePatterns.size).toBe(0);
+        });
+
+        test('doit tolérer un require mal formé lors du parsing fin', async () => {
+            fs.existsSync.mockReturnValue(true);
+            fs.readFileSync.mockReturnValue("const a = require('eslint-plugin-json');");
+
+            const originalMatch = String.prototype.match;
+            const matchSpy = jest.spyOn(String.prototype, 'match').mockImplementation(function (regex) {
+                if (regex && regex.toString() === "/require\\('([^']+)'\\)/g") {
+                    return ["BROKEN_REQUIRE_TOKEN"];
+                }
+                if (regex && regex.toString() === "/require\\('([^']+)'\\)/") {
+                    return null;
+                }
+                return originalMatch.call(this, regex);
+            });
+
+            const result = await configAnalyzer.analyzeExistingConfig();
+
+            expect(result.plugins.size).toBe(0);
+            matchSpy.mockRestore();
         });
     });
 
@@ -343,6 +391,27 @@ describe('Core codeQualityTools - configAnalyzer', () => {
 
             expect(result).toContain('markdown');
         });
+
+        test('ne doit pas ajouter import si le plugin est déjà présent dans le contenu', () => {
+            const content = `const html = require('eslint-plugin-html');\nmodule.exports = [];`;
+            const tools = ['HTML (ESLint Plugin)'];
+            const plugins = new Set();
+
+            const result = configAnalyzer.addMissingImports(content, tools, plugins);
+
+            const htmlCount = (result.match(/eslint-plugin-html/g) || []).length;
+            expect(htmlCount).toBe(1);
+        });
+
+        test('ne doit rien injecter si module.exports est absent', () => {
+            const content = `const notAConfig = true;`;
+            const tools = ['JSON (ESLint Plugin)'];
+            const plugins = new Set();
+
+            const result = configAnalyzer.addMissingImports(content, tools, plugins);
+
+            expect(result).toBe(content);
+        });
     });
 
     describe('addMissingConfigs', () => {
@@ -488,6 +557,37 @@ describe('Core codeQualityTools - configAnalyzer', () => {
 
             expect(result).toContain('**/*.ts');
             expect(result.indexOf('**/*.ts')).toBeGreaterThan(result.indexOf('**/*.js'));
+        });
+
+        test('doit ignorer les outils sans générateur', () => {
+            const content = `module.exports = [];`;
+            const tools = ['Unknown Tool'];
+            const analysis = { plugins: new Set(), filePatterns: new Set() };
+
+            const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
+
+            expect(result).toBe(content);
+        });
+
+        test('ne doit pas ajouter une config déjà présente via configKey', () => {
+            const content = `module.exports = [{ files: ['**/*.json'] }];`;
+            const tools = ['JSON (ESLint Plugin)'];
+            const analysis = { plugins: new Set(), filePatterns: new Set() };
+
+            const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
+
+            const jsonCount = (result.match(/\*\*\/\*\.json/g) || []).length;
+            expect(jsonCount).toBe(1);
+        });
+
+        test('doit retourner le contenu si array module.exports n\'est pas fermé', () => {
+            const content = `module.exports = [\n  { files: ['**/*.js'] }`;
+            const tools = ['TypeScript (TypeScript ESLint)'];
+            const analysis = { plugins: new Set(), filePatterns: new Set() };
+
+            const result = configAnalyzer.addMissingConfigs(content, tools, analysis);
+
+            expect(result).toBe(content);
         });
     });
 });

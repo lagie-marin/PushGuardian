@@ -67,6 +67,31 @@ describe('Utils - chalk-wrapper', () => {
         expect(typeof chalk.green('')).toBe('string');
         expect(typeof chalk.blue('')).toBe('string');
     });
+
+    test('getChalk doit utiliser le fallback si chalk est indisponible', () => {
+        jest.resetModules();
+
+        jest.doMock('chalk', () => {
+            throw new Error('chalk missing');
+        });
+
+        jest.isolateModules(() => {
+            const { getChalk: getFallbackChalk } = require('../../src/utils/chalk-wrapper');
+            const fallback = getFallbackChalk();
+
+            expect(fallback.red('x')).toBe('x');
+            expect(fallback.green('y')).toBe('y');
+            expect(fallback.yellow('z')).toBe('z');
+            expect(fallback.blue('b')).toBe('b');
+            expect(fallback.cyan('c')).toBe('c');
+            expect(fallback.magenta('m')).toBe('m');
+            expect(fallback.white('w')).toBe('w');
+            expect(fallback.gray('g')).toBe('g');
+            expect(fallback.black('b')).toBe('b');
+        });
+
+        jest.dontMock('chalk');
+    });
 });
 
 describe('Utils - exec-wrapper', () => {

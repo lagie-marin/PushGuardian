@@ -85,6 +85,14 @@ describe('Core Mirroring - BranchSynchronizer', () => {
             );
         });
 
+        test('retourne erreur non implémentée si client existe mais plateforme inconnue', async () => {
+            const sync = new BranchSynchronizer({ custom: {} });
+
+            await expect(sync.getBranches('custom', 'repo', 'owner')).rejects.toThrow(
+                'Liste des branches non implémentée pour custom'
+            );
+        });
+
         test('retourne erreur si client non défini', async () => {
             const sync = new BranchSynchronizer({});
             await expect(sync.getBranches('github', 'repo', 'owner')).rejects.toThrow(
@@ -158,6 +166,15 @@ describe('Core Mirroring - BranchSynchronizer', () => {
             const branchData = { name: 'test', commit: { sha: 'abc123' } };
             await expect(synchronizer.createBranch('unsupported', 'repo', branchData, 'owner')).rejects.toThrow(
                 'Plateforme non prise en charge'
+            );
+        });
+
+        test('retourne erreur non implémentée si client existe mais plateforme inconnue', async () => {
+            const sync = new BranchSynchronizer({ custom: {} });
+            const branchData = { name: 'test', commit: { sha: 'abc123' } };
+
+            await expect(sync.createBranch('custom', 'repo', branchData, 'owner')).rejects.toThrow(
+                "La création de branche n'est pas implémentée pour custom"
             );
         });
 
