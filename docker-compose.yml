@@ -15,8 +15,6 @@ services:
       - NODE_ENV=production
       - TOKEN=${TOKEN:-}
       - GITLAB_TOKEN=${GITLAB_TOKEN:-}
-      - BITBUCKET_USERNAME=${BITBUCKET_USERNAME:-}
-      - BITBUCKET_PASSWORD=${BITBUCKET_PASSWORD:-}
       - AZURE_DEVOPS_URL=${AZURE_DEVOPS_URL:-}
       - AZURE_DEVOPS_TOKEN=${AZURE_DEVOPS_TOKEN:-}
     command: validate

@@ -341,7 +341,7 @@ describe('Core codeQualityTools - configGenerator', () => {
             expect(configGenerator.getPluginNameForTool('TypeScript (TypeScript ESLint)')).toBe('typescript');
             expect(configGenerator.getPluginNameForTool('JSON (ESLint Plugin)')).toBe('json');
             expect(configGenerator.getPluginNameForTool('Markdown (ESLint Plugin)')).toBe('markdown');
-            expect(configGenerator.getPluginNameForTool('YAML (ESLint Plugin)')).toBe('yaml');
+            expect(configGenerator.getPluginNameForTool('YAML (ESLint Plugin)')).toBe('yml');
             expect(configGenerator.getPluginNameForTool('HTML (ESLint Plugin)')).toBe('html');
             expect(configGenerator.getPluginNameForTool('Nuxt (ESLint Plugin)')).toBe('nuxt');
             expect(configGenerator.getPluginNameForTool('Unknown Tool')).toBeUndefined();
@@ -693,7 +693,7 @@ describe('Core codeQualityTools - configGenerator', () => {
 
     describe('generateYAMLCode - conditions de retour null', () => {
         test('doit retourner null si plugin yaml existe', () => {
-            const existingPlugins = new Set(['yaml']);
+            const existingPlugins = new Set(['yml']);
             const existingFilesPatterns = new Set();
 
             const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);

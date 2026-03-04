@@ -5,7 +5,7 @@ const chalk = getChalk();
 
 module.exports = {
     name: 'plugin',
-    description: 'Gestion des plugins PushGuardian (list, commands, run, enable, disable)',
+    description: 'Gestion des plugins PushGuardian (list, commands, run, enable, disable, help)',
     arguments: [
         {
             name: '<action>',
@@ -49,7 +49,7 @@ async function pluginCommand(args, options) {
             break;
 
         case 'run':
-            await handleRun(args[1], args[2], args.slice(3), options);
+            await handleRun(args.slice(1), options);
             break;
 
         default:
@@ -101,11 +101,47 @@ function handleCommands() {
 /**
  * Exécute une commande d'un plugin
  */
-async function handleRun(pluginName, commandName, args, options) {
-    if (!pluginName || !commandName) {
-        console.log(chalk.red('Nom du plugin et de la commande requis'));
-        console.log(chalk.yellow('Usage: pushguardian plugin run <plugin> <commande> [args...]'));
+async function handleRun(runArgs, options) {
+    if (!runArgs || runArgs.length === 0) {
+        console.log(chalk.red('Nom de commande requis'));
+        console.log(chalk.yellow('Usage: pushguardian plugin run <commande> [args...]'));
+        console.log(chalk.yellow('   ou: pushguardian plugin run <plugin> <commande> [args...]'));
         return;
+    }
+
+    let pluginName;
+    let commandName;
+    let args = [];
+
+    const [firstArg, secondArg] = runArgs;
+    const pluginInfo = pluginRegistry.getPluginInfo(firstArg);
+    const isExplicitPluginSyntax = Boolean(secondArg) && Boolean(pluginInfo);
+
+    if (isExplicitPluginSyntax) {
+        pluginName = firstArg;
+        commandName = secondArg;
+        args = runArgs.slice(2);
+    } else {
+        commandName = firstArg;
+        args = runArgs.slice(1);
+
+        const matches = pluginManager.listCommands().filter((cmd) => cmd.command === commandName);
+
+        if (matches.length === 0) {
+            console.log(chalk.red(`Commande plugin introuvable: ${commandName}`));
+            console.log(chalk.yellow('Utilisez: pushguardian plugin commands'));
+            return;
+        }
+
+        if (matches.length > 1) {
+            const plugins = [...new Set(matches.map((m) => m.plugin))].join(', ');
+            console.log(chalk.red(`Commande ambiguë: ${commandName}`));
+            console.log(chalk.yellow(`Plugins correspondants: ${plugins}`));
+            console.log(chalk.yellow(`Utilisez: pushguardian plugin run <plugin> ${commandName} [args...]`));
+            return;
+        }
+
+        pluginName = matches[0].plugin;
     }
 
     try {
@@ -129,6 +165,7 @@ function displayHelp() {
     console.log('  ' + chalk.green('disable <nom>') + '      - Desactive un plugin');
     console.log('  ' + chalk.green('list') + '               - Liste les plugins installes');
     console.log('  ' + chalk.green('commands') + '           - Liste les commandes disponibles');
+    console.log('  ' + chalk.green('run <cmd> [args...]') + '  - Execute une commande unique');
     console.log('  ' + chalk.green('run <plugin> <cmd>') + ' - Execute une commande de plugin');
     console.log();
 }

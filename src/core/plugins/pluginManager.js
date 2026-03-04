@@ -1,4 +1,5 @@
 const pluginRegistry = require('./pluginRegistry');
+
 const { getChalk } = require('../../utils/chalk-wrapper');
 const chalk = getChalk();
 

@@ -47,8 +47,8 @@ describe('Core Mirroring - SyncManager', () => {
             const envVars = {
                 'GIT_TOKEN': 'github-token-123',
                 'GITLAB_TOKEN': 'gitlab-token-456',
-                'BITBUCKET_USERNAME': 'bb-user',
-                'BITBUCKET_PASSWORD': 'bb-pass',
+                'BIT_BUCKET': 'bb-token-789',
+                'BB_WORKSPACE': 'my-workspace',
                 'AZURE_DEVOPS_URL': 'https://dev.azure.com/org',
                 'AZURE_DEVOPS_TOKEN': 'azure-token-789'
             };
@@ -80,7 +80,7 @@ describe('Core Mirroring - SyncManager', () => {
         // Mock constructors
         Octokit.mockImplementation(() => ({ auth: 'github-token-123' }));
         Gitlab.mockImplementation(() => ({ token: 'gitlab-token-456' }));
-        Bitbucket.mockImplementation(() => ({ auth: { username: 'bb-user', password: 'bb-pass' } }));
+        Bitbucket.mockImplementation(() => ({ auth: { token: 'bb-token-789' } }));
         WebApi.mockImplementation(() => ({ url: 'https://dev.azure.com/org' }));
 
         // Mock RepoManager and BranchSynchronizer
@@ -133,7 +133,7 @@ describe('Core Mirroring - SyncManager', () => {
 
         test('doit initialiser client Bitbucket si activé', () => {
             expect(Bitbucket).toHaveBeenCalledWith({
-                auth: { username: 'bb-user', password: 'bb-pass' }
+                auth: { token: 'bb-token-789' }
             });
             expect(syncManager.clients.bitbucket).toBeDefined();
         });
@@ -211,7 +211,7 @@ describe('Core Mirroring - SyncManager', () => {
 
         test('doit afficher warning si init Bitbucket échoue', () => {
             getEnv.mockImplementation((key) => {
-                if (key === 'BITBUCKET_USERNAME') throw new Error('Username not found');
+                if (key === 'BIT_BUCKET') throw new Error('Token not found');
                 return 'token';
             });
             Bitbucket.mockClear();
@@ -394,43 +394,37 @@ describe('Core Mirroring - SyncManager', () => {
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Configuration du remote cible'));
         });
 
-        test('doit pousser branche main', async () => {
+        test('doit pousser toutes les branches en mode mirror', async () => {
             await syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner');
 
-            expect(mockGit.push).toHaveBeenCalledWith('origin', 'main', ['--force']);
+            expect(mockGit.push).toHaveBeenCalledWith('origin', ['--all', '--force']);
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Push du code vers le dépôt cible'));
         });
 
-        test('doit pousser toutes les branches sauf main et master', async () => {
+        test('doit pousser toutes les branches avec --all', async () => {
             mockGit.branch.mockResolvedValue({
                 all: ['main', 'master', 'develop', 'feature/test']
             });
 
             await syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner');
 
-            expect(mockGit.push).toHaveBeenCalledWith('origin', 'develop', ['--force']);
-            expect(mockGit.push).toHaveBeenCalledWith('origin', 'feature/test', ['--force']);
-            expect(mockGit.push).toHaveBeenCalledTimes(3); // main + develop + feature/test
+            // Avec --all, on pousse toutes les branches locales et tags en une seule commande
+            expect(mockGit.push).toHaveBeenCalledWith('origin', ['--all', '--force']);
         });
 
-        test('doit pousser les tags', async () => {
+        test('doit pousser les tags avec --force', async () => {
             await syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner');
 
-            expect(mockGit.pushTags).toHaveBeenCalledWith('origin');
+            expect(mockGit.pushTags).toHaveBeenCalledWith('origin', ['--force']);
         });
 
-        test('doit afficher warning si push branche échoue', async () => {
-            mockGit.push.mockImplementation((remote, branch) => {
-                if (branch === 'develop') {
-                    return Promise.reject(new Error('Branch push failed'));
-                }
-                return Promise.resolve();
-            });
+        test('doit afficher warning si push --all échoue', async () => {
+            mockGit.push.mockRejectedValueOnce(new Error('Push all failed')).mockResolvedValueOnce(undefined);
 
             await syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner');
 
             expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('Impossible de pousser la branche develop: Branch push failed')
+                expect.stringContaining('Impossible de pousser toutes les branches: Push all failed')
             );
         });
 
@@ -486,15 +480,14 @@ describe('Core Mirroring - SyncManager', () => {
             );
         });
 
-        test('doit propager erreurs de push', async () => {
-            mockGit.push.mockRejectedValue(new Error('Push failed'));
+        test('doit gérer erreurs de push avec gracieusement', async () => {
+            mockGit.push.mockRejectedValueOnce(new Error('Push failed')).mockResolvedValueOnce(undefined);
 
-            await expect(
-                syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner')
-            ).rejects.toThrow('Push failed');
+            // Même si push --all échoue, les tags sont tentés et la fonction ne lève pas
+            await syncManager.pushCodeToTarget('github', 'github', 'source', 'target', 'src-owner', 'tgt-owner');
 
-            expect(console.error).toHaveBeenCalledWith(
-                expect.stringContaining('Échec du push du code: Push failed')
+            expect(console.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Impossible de pousser toutes les branches: Push failed')
             );
         });
     });

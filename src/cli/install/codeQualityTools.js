@@ -146,7 +146,7 @@ function getPluginNameForTool(tool) {
         'JSON (ESLint Plugin)': 'eslint-plugin-json',
         'Markdown (ESLint Plugin)': '@eslint/markdown',
         'CSS/SCSS (Stylelint)': 'stylelint',
-        'YAML (ESLint Plugin)': 'eslint-plugin-yaml',
+        'YAML (ESLint Plugin)': 'eslint-plugin-yml',
         'HTML (ESLint Plugin)': 'eslint-plugin-html',
         'Nuxt (ESLint Plugin)': 'eslint-plugin-nuxt'
     };

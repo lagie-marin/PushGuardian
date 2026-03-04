@@ -40,8 +40,8 @@ function generateImports(selectedTools, existingPlugins) {
             code: `const markdown = require('@eslint/markdown');\n`
         },
         'YAML (ESLint Plugin)': {
-            condition: !existingPlugins.has('yaml'),
-            code: `const yaml = require('eslint-plugin-yaml');\n`
+            condition: !existingPlugins.has('yml'),
+            code: `const yml = require('eslint-plugin-yml');\nconst yamlParser = require('yaml-eslint-parser');\n`
         },
         'HTML (ESLint Plugin)': {
             condition: !existingPlugins.has('html'),
@@ -239,7 +239,7 @@ function generateMarkdownCode(existingPlugins, existingFilesPatterns) {
 }
 
 function generateYAMLCode(existingPlugins, existingFilesPatterns) {
-    const hasPlugin = existingPlugins.has('yaml');
+    const hasPlugin = existingPlugins.has('yml');
     const hasConfig = Array.from(existingFilesPatterns).some(
         (pattern) => pattern.includes('*.yaml') || pattern.includes('*.yml')
     );
@@ -250,7 +250,10 @@ function generateYAMLCode(existingPlugins, existingFilesPatterns) {
 
     return `{
         files: ['**/*.yaml', '**/*.yml'],
-        plugins: { yaml }
+        languageOptions: {
+            parser: yamlParser,
+        },
+        plugins: { yml }
     }`;
 }
 
@@ -303,7 +306,7 @@ function getPluginNameForTool(tool) {
         'TypeScript (TypeScript ESLint)': 'typescript',
         'JSON (ESLint Plugin)': 'json',
         'Markdown (ESLint Plugin)': 'markdown',
-        'YAML (ESLint Plugin)': 'yaml',
+        'YAML (ESLint Plugin)': 'yml',
         'HTML (ESLint Plugin)': 'html',
         'Nuxt (ESLint Plugin)': 'nuxt'
     };

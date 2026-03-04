@@ -24,7 +24,7 @@ const LANGUAGE_TOOLS = {
         setup: setupCSS
     },
     'YAML (ESLint Plugin)': {
-        packages: ['eslint-plugin-yaml'],
+        packages: ['eslint-plugin-yml', 'yaml-eslint-parser'],
         setup: setupYAML
     },
     'HTML (ESLint Plugin)': {

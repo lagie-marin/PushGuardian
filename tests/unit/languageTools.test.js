@@ -73,7 +73,7 @@ describe('Core codeQualityTools - languageTools', () => {
         test('doit contenir YAML (ESLint Plugin)', () => {
             const yamlConfig = languageTools.LANGUAGE_TOOLS['YAML (ESLint Plugin)'];
             expect(yamlConfig).toBeDefined();
-            expect(yamlConfig.packages).toEqual(['eslint-plugin-yaml']);
+            expect(yamlConfig.packages).toEqual(['eslint-plugin-yml', 'yaml-eslint-parser']);
         });
 
         test('doit contenir HTML (ESLint Plugin)', () => {

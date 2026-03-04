@@ -14,10 +14,11 @@ class RepoManager {
     ) {
         try {
             const srcRepo = await this.getRepo(srcPlatform, sourceRepo, sourceOwner);
+            const normalizedSrcRepo = srcRepo && srcRepo.data ? srcRepo.data : srcRepo;
             const repoData = {
                 name: targetRepo,
-                description: srcRepo.description || '',
-                private: srcRepo.private || false
+                description: normalizedSrcRepo.description || '',
+                private: normalizedSrcRepo.private || false
             };
             await this.createRepo(targetPlatform, repoData, targetOwner, public_repo);
         } catch (error) {
@@ -57,13 +58,40 @@ class RepoManager {
             }
         }
         if (platform === 'gitlab') {
+            const projectPath = `${owner}/${repoData.name}`;
+
+            try {
+                const existingByPath = await client.Projects.show(projectPath);
+                if (existingByPath) {
+                    console.log(
+                        `📁 Le dépôt ${repoData.name} existe déjà chez ${owner}, utilisation du dépôt existant.`
+                    );
+                    return existingByPath;
+                }
+            } catch {
+                // Le projet n'existe pas (ou n'est pas accessible), on tente la création juste après.
+            }
+
             const existing = await client.Projects.search(repoData.name).catch(() => []);
             const existingRepo = existing.find((p) => p.name === repoData.name && p.namespace.name === owner);
             if (existingRepo) {
                 console.log(`📁 Le dépôt ${repoData.name} existe déjà chez ${owner}, utilisation du dépôt existant.`);
                 return existingRepo;
             }
-            return await client.Projects.create({ ...repoData, visibility: public_repo ? 'public' : 'private' });
+
+            try {
+                return await client.Projects.create({
+                    ...repoData,
+                    visibility: public_repo ? 'public' : 'private'
+                });
+            } catch (error) {
+                if (error && (error.message || '').toLowerCase().includes('forbidden')) {
+                    throw new Error(
+                        "GitLab a refusé l'opération (Forbidden). Vérifiez que GITLAB_TOKEN a le scope 'api' et les droits de création dans le namespace cible."
+                    );
+                }
+                throw error;
+            }
         }
         if (platform === 'bitbucket') {
             const existing = await client.repositories.list({ workspace: owner || 'workspace' });

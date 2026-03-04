@@ -89,10 +89,11 @@ jobs:
         echo "Executing: $mirror_cmd"
         eval $mirror_cmd
       env:
-        GIT_TOKEN: \${{ secrets.GIT_TOKEN }}
+        GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        GIT_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         GITLAB_TOKEN: \${{ secrets.GITLAB_TOKEN }}
-        BITBUCKET_USERNAME: \${{ secrets.BITBUCKET_USERNAME }}
-        BITBUCKET_PASSWORD: \${{ secrets.BITBUCKET_PASSWORD }}
+        BIT_BUCKET: \${{ secrets.BIT_BUCKET }}
+        BB_WORKSPACE: \${{ vars.BB_WORKSPACE }}
         AZURE_DEVOPS_URL: \${{ secrets.AZURE_DEVOPS_URL }}
         AZURE_DEVOPS_TOKEN: \${{ secrets.AZURE_DEVOPS_TOKEN }}
 `;

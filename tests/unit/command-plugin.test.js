@@ -11,6 +11,8 @@ describe('CLI Command - plugin', () => {
     beforeEach(() => {
         consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
         jest.clearAllMocks();
+        pluginRegistry.getPluginInfo.mockReturnValue(null);
+        pluginManager.listCommands.mockReturnValue([]);
     });
 
     afterEach(() => {
@@ -109,6 +111,7 @@ describe('CLI Command - plugin', () => {
     describe('action run', () => {
         test('doit exécuter une commande de plugin', async () => {
             pluginManager.executeCommand.mockResolvedValue('result');
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['test-plugin', 'test-command'], {});
 
@@ -122,6 +125,7 @@ describe('CLI Command - plugin', () => {
 
         test('doit passer les arguments à la commande', async () => {
             pluginManager.executeCommand.mockResolvedValue(undefined);
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['test-plugin', 'test-command', 'arg1', 'arg2'], { opt: true });
 
@@ -135,6 +139,7 @@ describe('CLI Command - plugin', () => {
 
         test('doit afficher le résultat si défini', async () => {
             pluginManager.executeCommand.mockResolvedValue('Success result');
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['test-plugin', 'test-command'], {});
 
@@ -143,6 +148,7 @@ describe('CLI Command - plugin', () => {
 
         test('ne doit pas afficher undefined', async () => {
             pluginManager.executeCommand.mockResolvedValue(undefined);
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['test-plugin', 'test-command'], {});
 
@@ -154,20 +160,59 @@ describe('CLI Command - plugin', () => {
 
             expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('requis'));
             expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining('pushguardian plugin run <plugin> <commande>')
+                expect.stringContaining('pushguardian plugin run <commande>')
             );
             expect(pluginManager.executeCommand).not.toHaveBeenCalled();
         });
 
-        test('doit afficher erreur si commande manquante', async () => {
-            await pluginCommand.action('run', ['test-plugin'], {});
+        test('doit résoudre automatiquement une commande unique', async () => {
+            pluginManager.listCommands.mockReturnValue([
+                { plugin: 'example-plugin', command: 'hello', description: 'hello', args: [] }
+            ]);
+            pluginManager.executeCommand.mockResolvedValue(undefined);
 
-            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('requis'));
+            await pluginCommand.action('run', ['hello'], {});
+
+            expect(pluginManager.executeCommand).toHaveBeenCalledWith('example-plugin', 'hello', [], {});
+        });
+
+        test('doit passer les args avec la syntaxe run <commande> [args...]', async () => {
+            pluginManager.listCommands.mockReturnValue([
+                { plugin: 'example-plugin', command: 'hello', description: 'hello', args: [] }
+            ]);
+            pluginManager.executeCommand.mockResolvedValue(undefined);
+
+            await pluginCommand.action('run', ['hello', 'a', 'b'], { flag: true });
+
+            expect(pluginManager.executeCommand).toHaveBeenCalledWith('example-plugin', 'hello', ['a', 'b'], {
+                flag: true
+            });
+        });
+
+        test('doit afficher erreur si commande introuvable en mode implicite', async () => {
+            pluginManager.listCommands.mockReturnValue([]);
+
+            await pluginCommand.action('run', ['unknown-cmd'], {});
+
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('introuvable'));
+            expect(pluginManager.executeCommand).not.toHaveBeenCalled();
+        });
+
+        test('doit afficher erreur si commande ambiguë en mode implicite', async () => {
+            pluginManager.listCommands.mockReturnValue([
+                { plugin: 'plugin-a', command: 'hello', description: '', args: [] },
+                { plugin: 'plugin-b', command: 'hello', description: '', args: [] }
+            ]);
+
+            await pluginCommand.action('run', ['hello'], {});
+
+            expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('ambigu'));
             expect(pluginManager.executeCommand).not.toHaveBeenCalled();
         });
 
         test('doit gérer erreur d\'exécution', async () => {
             pluginManager.executeCommand.mockRejectedValue(new Error('Execution failed'));
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['test-plugin', 'test-command'], {});
 
@@ -214,6 +259,7 @@ describe('CLI Command - plugin', () => {
     describe('intégration avec args array', () => {
         test('doit gérer correctement args vide', async () => {
             pluginManager.executeCommand.mockResolvedValue(undefined);
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['plugin', 'cmd'], {});
 
@@ -227,6 +273,7 @@ describe('CLI Command - plugin', () => {
 
         test('doit gérer plusieurs args', async () => {
             pluginManager.executeCommand.mockResolvedValue(undefined);
+            pluginRegistry.getPluginInfo.mockReturnValue({ enabled: true });
 
             await pluginCommand.action('run', ['plugin', 'cmd', 'a', 'b', 'c'], {});
 
