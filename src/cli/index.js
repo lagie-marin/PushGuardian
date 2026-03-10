@@ -6,7 +6,7 @@ const VERSION = '0.0.1';
 const program = new Command();
 const fs = require('fs');
 
-program.name('pushguardian').description('🛡️ PushGuardian - Système de validation CI/CD').version(VERSION);
+program.name('push-guardian').description('🛡️ push-guardian - Système de validation CI/CD').version(VERSION);
 
 const commandsDir = path.join(__dirname, 'command');
 fs.readdirSync(commandsDir).forEach((file) => {

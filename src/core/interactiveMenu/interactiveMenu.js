@@ -18,6 +18,12 @@ module.exports = (message, choices, preselected = []) => {
         };
 
         const handleInput = (key) => {
+            if (key == '\u0003') {
+                // QUIT with Ctrl+C
+                process.exit();
+                return;
+            }
+
             if (key == '\u001B[A') {
                 // UP Arrow
                 currentIndex = (currentIndex - 1 + choices.length) % choices.length;
@@ -42,9 +48,6 @@ module.exports = (message, choices, preselected = []) => {
                 // Rigth Arrow
                 choiseMap.push(currentIndex);
                 renderMenu();
-            } else if (key == '\u0003') {
-                // QUIT with Ctrl+C
-                process.exit();
             }
         };
 

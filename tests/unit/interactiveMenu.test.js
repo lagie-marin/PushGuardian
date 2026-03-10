@@ -258,6 +258,24 @@ describe('Core InteractiveMenu - interactiveMenu', () => {
             exitMock.mockRestore();
             jest.spyOn(process, 'exit').mockImplementation(() => {});
         });
+
+        test('doit appeler process.exit avec Ctrl+C sans throw', () => {
+            const exitMock = jest.spyOn(process, 'exit').mockImplementation(() => {});
+
+            interactiveMenu('Test', ['Option 1', 'Option 2']);
+            handleInput('\u0003');
+
+            expect(exitMock).toHaveBeenCalled();
+        });
+
+        test('doit ignorer une touche inconnue', () => {
+            interactiveMenu('Test', ['Option 1', 'Option 2']);
+
+            const clearCount = console.clear.mock.calls.length;
+            handleInput('x');
+
+            expect(console.clear.mock.calls.length).toBe(clearCount);
+        });
     });
 
     describe('validation avec Entrée', () => {

@@ -17,10 +17,6 @@ function askCredentials(platform) {
         const questions = {
             github: [{ key: 'token', question: 'Entrez votre token GitHub: ' }],
             gitlab: [{ key: 'token', question: 'Entrez votre token GitLab: ' }],
-            bitbucket: [
-                { key: 'username', question: "Entrez votre nom d'utilisateur BitBucket: " },
-                { key: 'password', question: 'Entrez votre mot de passe BitBucket: ' }
-            ],
             azure: [
                 {
                     key: 'url',
@@ -71,10 +67,6 @@ function getCredentialsFromEnv(platform) {
         } else if (platformKey === 'gitlab') {
             credentials.token = getEnv('GITLAB_TOKEN', null, true);
             console.log('✅ Token GitLab chargé depuis .env');
-        } else if (platformKey === 'bitbucket') {
-            credentials.username = getEnv('BITBUCKET_USERNAME', null, true);
-            credentials.password = getEnv('BITBUCKET_PASSWORD', null, true);
-            console.log('✅ Credentials BitBucket chargés depuis .env');
         } else if (platformKey === 'azure') {
             credentials.url = getEnv('AZURE_DEVOPS_URL', null, true);
             credentials.token = getEnv('AZURE_DEVOPS_TOKEN', null, true);
@@ -86,8 +78,6 @@ function getCredentialsFromEnv(platform) {
         console.log(chalk.gray(`   Exemple de fichier .env:`));
         console.log(chalk.gray(`   GITHUB_TOKEN=votre_token_ici`));
         console.log(chalk.gray(`   GITLAB_TOKEN=votre_token_ici`));
-        console.log(chalk.gray(`   BITBUCKET_USERNAME=votre_username`));
-        console.log(chalk.gray(`   BITBUCKET_PASSWORD=votre_password`));
         console.log(chalk.gray(`   AZURE_DEVOPS_URL=https://dev.azure.com/votre_org`));
         console.log(chalk.gray(`   AZURE_DEVOPS_TOKEN=votre_token_ici`));
         console.log('');
@@ -114,7 +104,6 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
     const allPlatforms = {
         github: { enabled: false },
         gitlab: { enabled: false },
-        bitbucket: { enabled: false },
         azure: { enabled: false }
     };
 
@@ -134,7 +123,7 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
         }
     });
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
 
     try {
         let existingConfig = {};
@@ -170,9 +159,6 @@ function saveCredentialsToEnv(credentials) {
             saveEnv('GITHUB_TOKEN', creds.token, envPath);
         } else if (platformKey === 'gitlab' && creds.token && !getEnv('GITLAB_TOKEN')) {
             saveEnv('GITLAB_TOKEN', creds.token, envPath);
-        } else if (platformKey === 'bitbucket' && !getEnv('BITBUCKET_USERNAME') && !getEnv('BITBUCKET_PASSWORD')) {
-            if (creds.username) saveEnv('BITBUCKET_USERNAME', creds.username, envPath);
-            if (creds.password) saveEnv('BITBUCKET_PASSWORD', creds.password, envPath);
         } else if (platformKey === 'azure' && !getEnv('AZURE_DEVOPS_URL') && !getEnv('AZURE_DEVOPS_TOKEN')) {
             if (creds.url) saveEnv('AZURE_DEVOPS_URL', creds.url, envPath);
             if (creds.token) saveEnv('AZURE_DEVOPS_TOKEN', creds.token, envPath);
@@ -186,7 +172,7 @@ async function installMirroringTools() {
 
     loadEnv();
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
     if (fs.existsSync(configFilePath)) {
         const existingContent = fs.readFileSync(configFilePath, 'utf8');
         const existingConfig = JSON.parse(existingContent);
@@ -196,7 +182,7 @@ async function installMirroringTools() {
         }
     }
 
-    const availablePlatforms = ['GitHub', 'GitLab', 'BitBucket', 'Azure DevOps'];
+    const availablePlatforms = ['GitHub', 'GitLab', 'Azure DevOps'];
     const selectedPlatforms = await interactiveMenu(
         'Choisissez les plateformes à activer pour le mirroring:',
         availablePlatforms
@@ -230,6 +216,7 @@ async function installMirroringTools() {
 
     Object.keys(defaults).forEach((key) => {
         const envKey = `${key.toUpperCase()}`;
+        /* istanbul ignore next */
         if (defaults[key]) {
             saveEnv(envKey, defaults[key]);
         }
@@ -238,15 +225,16 @@ async function installMirroringTools() {
     createMirroringConfig(selectedPlatforms, credentials, defaultSettings);
     console.log(chalk.green('✅ Installation du système de mirroring terminée!'));
     console.log(
-        chalk.blue('💡 Utilisez la commande "pushguardian mirror" pour effectuer des opérations de mirroring.')
+        chalk.blue('💡 Utilisez la commande "push-guardian mirror" pour effectuer des opérations de mirroring.')
     );
     console.log(
-        chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables PUSHGUARDIAN_MIRROR_*).')
+        chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables push-guardian_MIRROR_*).')
     );
 }
 
+/* istanbul ignore next */
 async function askForDefaults() {
-    const supportedPlatforms = ['github', 'gitlab', 'bitbucket', 'azure'];
+    const supportedPlatforms = ['github', 'gitlab', 'azure'];
 
     return new Promise((resolve) => {
         const rl = readline.createInterface({

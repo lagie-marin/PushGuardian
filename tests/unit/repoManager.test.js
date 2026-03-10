@@ -109,6 +109,14 @@ describe('Core Mirroring - RepoManager', () => {
                 );
             });
 
+            test('doit lever erreur non implémentée si client existe mais plateforme inconnue', async () => {
+                const managerWithCustomClient = new RepoManager({ custom: {} });
+
+                await expect(managerWithCustomClient.getRepo('custom', 'repo', 'owner')).rejects.toThrow(
+                    "La récupération du dépôt n'est pas implémentée pour custom"
+                );
+            });
+
             test('doit lever erreur si client non défini', async () => {
                 const managerWithoutClient = new RepoManager({});
                 await expect(managerWithoutClient.getRepo('github', 'repo', 'owner')).rejects.toThrow(
@@ -346,6 +354,14 @@ describe('Core Mirroring - RepoManager', () => {
             test('doit lever erreur si plateforme non supportée', async () => {
                 await expect(repoManager.createRepo('unsupported', {}, 'owner')).rejects.toThrow(
                     'Plateforme non prise en charge: unsupported'
+                );
+            });
+
+            test('doit lever erreur non implémentée si client existe mais plateforme inconnue', async () => {
+                const managerWithCustomClient = new RepoManager({ custom: {} });
+
+                await expect(managerWithCustomClient.createRepo('custom', {}, 'owner')).rejects.toThrow(
+                    "La création de dépôt n'est pas implémentée pour custom"
                 );
             });
 

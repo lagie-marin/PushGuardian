@@ -1,6 +1,3 @@
-const { Octokit } = require('@octokit/rest');
-const { WebApi } = require('azure-devops-node-api');
-const { Bitbucket } = require('bitbucket');
 const { Gitlab } = require('gitlab');
 const simpleGit = require('simple-git');
 const path = require('path');
@@ -20,43 +17,12 @@ class SyncManager {
     initClients() {
         const clients = {};
 
-        if (this.config.github && this.config.github.enabled) {
-            try {
-                const token = getEnv('GIT_TOKEN');
-                clients.github = new Octokit({ auth: token });
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client GitHub: ${error.message}`);
-            }
-        }
-
         if (this.config.gitlab && this.config.gitlab.enabled) {
             try {
                 const token = getEnv('GITLAB_TOKEN');
                 clients.gitlab = new Gitlab({ token: token });
             } catch (error) {
                 console.warn(`⚠️  Impossible d'initialiser le client GitLab: ${error.message}`);
-            }
-        }
-
-        if (this.config.bitbucket && this.config.bitbucket.enabled) {
-            try {
-                const username = getEnv('BITBUCKET_USERNAME');
-                const password = getEnv('BITBUCKET_PASSWORD');
-                clients.bitbucket = new Bitbucket({
-                    auth: { username: username, password: password }
-                });
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client BitBucket: ${error.message}`);
-            }
-        }
-
-        if (this.config.azure && this.config.azure.enabled) {
-            try {
-                const url = getEnv('AZURE_DEVOPS_URL');
-                const token = getEnv('AZURE_DEVOPS_TOKEN');
-                clients.azure = new WebApi(url, token);
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client Azure DevOps: ${error.message}`);
             }
         }
 
@@ -110,15 +76,20 @@ class SyncManager {
     }
 
     async pushCodeToTarget(sourcePlatform, targetPlatform, sourceRepo, targetRepo, sourceOwner, targetOwner) {
-        if (sourcePlatform !== 'github' || targetPlatform !== 'github') {
-            console.log("⚠️ Le push du code n'est actuellement supporté que pour GitHub vers GitHub");
+        const isGithubToGithub = sourcePlatform === 'github' && targetPlatform === 'github';
+        const isGithubToGitlab = sourcePlatform === 'github' && targetPlatform === 'gitlab';
+
+        if (!isGithubToGithub && !isGithubToGitlab) {
+            console.log(
+                "⚠️ Le push du code n'est actuellement supporté que pour GitHub vers GitHub ou GitHub vers GitLab"
+            );
             return;
         }
 
-        const sourceToken = getEnv('GIT_TOKEN');
-        const targetToken = sourceToken;
+        const sourceToken = this.getGithubToken();
+        const targetToken = targetPlatform === 'gitlab' ? getEnv('GITLAB_TOKEN') : this.getGithubToken();
 
-        if (!sourceToken || !targetToken) {
+        if (!targetToken) {
             console.log('⚠️ Tokens manquants pour pousser le code');
             return;
         }
@@ -130,31 +101,31 @@ class SyncManager {
 
             const git = simpleGit(tempDir);
 
-            const sourceUrl = `https://${sourceToken}@github.com/${sourceOwner}/${sourceRepo}.git`;
+            const sourceUrl = sourceToken
+                ? `https://${sourceToken}@github.com/${sourceOwner}/${sourceRepo}.git`
+                : `https://github.com/${sourceOwner}/${sourceRepo}.git`;
             console.log('📥 Clonage du dépôt source...');
             await git.clone(sourceUrl, '.');
 
-            const targetUrl = `https://${targetToken}@github.com/${targetOwner}/${targetRepo}.git`;
+            const targetUrl =
+                targetPlatform === 'gitlab'
+                    ? `https://oauth2:${targetToken}@gitlab.com/${targetOwner}/${targetRepo}.git`
+                    : `https://${targetToken}@github.com/${targetOwner}/${targetRepo}.git`;
             console.log('📤 Configuration du remote cible...');
             await git.removeRemote('origin');
             await git.addRemote('origin', targetUrl);
 
             console.log('🚀 Push du code vers le dépôt cible...');
-            await git.push('origin', 'main', ['--force']);
 
-            const branches = await git.branch();
-            for (const branch of branches.all) {
-                if (branch !== 'main' && branch !== 'master') {
-                    try {
-                        await git.push('origin', branch, ['--force']);
-                    } catch (error) {
-                        console.warn(`⚠️ Impossible de pousser la branche ${branch}: ${error.message}`);
-                    }
-                }
+            // Pousser toutes les branches et les tags en mode mirror
+            try {
+                await git.push('origin', ['--all', '--force']);
+            } catch (error) {
+                console.warn(`⚠️ Impossible de pousser toutes les branches: ${error.message}`);
             }
 
             try {
-                await git.pushTags('origin');
+                await git.pushTags('origin', ['--force']);
             } catch (error) {
                 console.warn(`⚠️ Impossible de pousser les tags: ${error.message}`);
             }

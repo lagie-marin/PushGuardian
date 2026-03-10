@@ -1,10 +1,10 @@
-# **Documentation Développeur PushGuardian**
+# **Documentation Développeur push-guardian**
 
-PushGuardian est un outil CLI basé sur Node.js pour la validation automatisée de la qualité du code et la gestion des hooks Git. Ce document explique son architecture, ses composants et comment l'étendre.
+push-guardian est un outil CLI basé sur Node.js pour la validation automatisée de la qualité du code et la gestion des hooks Git. Ce document explique son architecture, ses composants et comment l'étendre.
 
 ## **Vue d'ensemble de l'architecture**
 
-PushGuardian suit une architecture modulaire avec une séparation claire des préoccupations :
+push-guardian suit une architecture modulaire avec une séparation claire des préoccupations :
 
 - **Couche CLI** : Analyse des commandes et interaction utilisateur
 - **Couche Core** : Logique métier et moteurs de validation
@@ -30,7 +30,7 @@ module.exports = {
 ```
 
 Gestion de la configuration
-La configuration est gérée par configManager.js, qui charge/sauvegarde `pushguardian.config.json.`
+La configuration est gérée par configManager.js, qui charge/sauvegarde `push-guardian.config.json.`
 
 Fonctions clés :
 
@@ -90,7 +90,7 @@ describe('Moteur de Contraintes', () => {
     });
 });
 ```
-## **Étendre PushGuardian**
+## **Étendre push-guardian**
 
 Ajouter une nouvelle commande
 
@@ -114,6 +114,6 @@ Les erreurs sont centralisées dans errorCMD.js, qui formate et quitte avec les 
 1. Installer les dépendances : npm install
 2. Lancer les tests : npm test
 3. Lier pour le développement : npm link
-4. Construire/vérifier : Utiliser ESLint via npx pushguardian validate
+4. Construire/vérifier : Utiliser ESLint via npx push-guardian validate
 
 Pour plus de détails, voir le `README.md` principal et `TECHNO.md`.

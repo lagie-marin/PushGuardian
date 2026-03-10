@@ -19,7 +19,7 @@ const hooks = require('../../src/cli/install/hooks');
 
 describe('CLI Install - hooks', () => {
     const mockHooksDir = path.join(process.cwd(), '.git', 'hooks');
-    const mockConfigPath = 'pushguardian.config.json';
+    const mockConfigPath = 'push-guardian.config.json';
     
     beforeEach(() => {
         jest.clearAllMocks();
@@ -133,7 +133,7 @@ describe('CLI Install - hooks', () => {
             const hookCalls = fs.writeFileSync.mock.calls.filter(call => call[0] === hookPath);
             
             expect(hookCalls.length).toBe(1);
-            expect(hookCalls[0][1]).toContain('npx pushguardian validate --hooks pre-push');
+            expect(hookCalls[0][1]).toContain('npx push-guardian validate --hooks pre-push');
             expect(fs.chmodSync).toHaveBeenCalledWith(hookPath, '755');
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Hook pre-push installé'));
             expect(result).toBe(true);
@@ -148,7 +148,7 @@ describe('CLI Install - hooks', () => {
             hooks.installHooks(['pre-push', 'commit-msg', 'post-checkout']);
 
             const hookWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0].includes('.git/hooks/') && !call[0].endsWith('pushguardian.config.json')
+                call => call[0].includes('.git/hooks/') && !call[0].endsWith('push-guardian.config.json')
             );
             expect(hookWrites.length).toBe(3);
             expect(fs.chmodSync).toHaveBeenCalledTimes(3);
@@ -215,7 +215,7 @@ describe('CLI Install - hooks', () => {
             const hookCalls = fs.writeFileSync.mock.calls.filter(call => call[0] === hookPath);
             
             expect(hookCalls.length).toBe(1);
-            expect(hookCalls[0][1]).toContain('npx pushguardian validate');
+            expect(hookCalls[0][1]).toContain('npx push-guardian validate');
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Hook pre-push installé'));
         });
 
@@ -255,7 +255,7 @@ describe('CLI Install - hooks', () => {
             const hookContent = hookCalls[0][1];
 
             expect(hookContent).toMatch(/^#!\/bin\/sh/);
-            expect(hookContent).toContain('# PushGuardian pre-push hook');
+            expect(hookContent).toContain('# push-guardian pre-push hook');
             expect(hookContent).toContain('|| exit 1');
         });
 
@@ -270,7 +270,7 @@ describe('CLI Install - hooks', () => {
         test('doit appeler createHooksConfig', () => {
             hooks.installHooks(['pre-push']);
 
-            // Vérifie que la config a été créée (dernier writeFileSync pour pushguardian.config.json)
+            // Vérifie que la config a été créée (dernier writeFileSync pour push-guardian.config.json)
             const configCalls = fs.writeFileSync.mock.calls.filter(
                 call => call[0] === mockConfigPath
             );

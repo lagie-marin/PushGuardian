@@ -6,7 +6,7 @@ jest.mock('fs');
 const configManager = require('../../src/core/configManager');
 
 describe('Core - configManager', () => {
-    const mockConfigPath = path.resolve(process.cwd(), 'pushguardian.config.json');
+    const mockConfigPath = path.resolve(process.cwd(), 'push-guardian.config.json');
     const originalConsoleError = console.error;
     const originalProcessExit = process.exit;
 
@@ -158,6 +158,38 @@ describe('Core - configManager', () => {
                 '{}'
             );
             expect(console.log).toHaveBeenCalledWith('✅ Configuration mise à jour avec succès.');
+        });
+    });
+
+    describe('bootstrap path guard', () => {
+        test('doit quitter si CONFIG_PATH n\'est pas dans le projet', () => {
+            jest.resetModules();
+
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+            const cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue('/home/project');
+
+            jest.doMock('path', () => {
+                const actual = jest.requireActual('path');
+                return {
+                    ...actual,
+                    resolve: jest.fn(() => '/tmp/outside/push-guardian.config.json')
+                };
+            });
+
+            jest.isolateModules(() => {
+                require('../../src/core/configManager');
+            });
+
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                '❌ Le fichier de configuration doit être situé à la racine du projet.'
+            );
+            expect(processExitSpy).toHaveBeenCalledWith(1);
+
+            cwdSpy.mockRestore();
+            consoleErrorSpy.mockRestore();
+            processExitSpy.mockRestore();
+            jest.dontMock('path');
         });
     });
 });

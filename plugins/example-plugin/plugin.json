@@ -1,0 +1,8 @@
+{
+  "name": "example-plugin",
+  "version": "1.0.0",
+  "description": "Plugin d'exemple pour push-guardian",
+  "author": "push-guardian Team",
+  "main": "index.js",
+  "commands": ["hello", "greet", "info"]
+}

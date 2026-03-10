@@ -17,7 +17,7 @@ function createCodeQualityConfig(installedTools) {
         }
     };
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
 
     try {
         let existingConfig = {};
@@ -87,7 +87,7 @@ async function installCodeQualityTools(all = false, preselectedTools = []) {
             selected = preselectedTools.filter((tool) => availableTools.includes(tool));
         } else if (all) {
             selected = availableTools;
-        } else if (!all) {
+        } else {
             selected = await interactiveMenu(
                 'Choisissez les langages à analyser avec ESLint:',
                 availableTools,
@@ -146,7 +146,7 @@ function getPluginNameForTool(tool) {
         'JSON (ESLint Plugin)': 'eslint-plugin-json',
         'Markdown (ESLint Plugin)': '@eslint/markdown',
         'CSS/SCSS (Stylelint)': 'stylelint',
-        'YAML (ESLint Plugin)': 'eslint-plugin-yaml',
+        'YAML (ESLint Plugin)': 'eslint-plugin-yml',
         'HTML (ESLint Plugin)': 'eslint-plugin-html',
         'Nuxt (ESLint Plugin)': 'eslint-plugin-nuxt'
     };

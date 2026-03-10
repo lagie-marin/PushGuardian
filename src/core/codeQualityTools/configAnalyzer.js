@@ -167,8 +167,8 @@ function addMissingImports(content, selectedTools, existingPlugins) {
             code: `const markdown = require('@eslint/markdown');\n`
         },
         'YAML (ESLint Plugin)': {
-            condition: !existingPlugins.has('yaml'),
-            code: `const yaml = require('eslint-plugin-yaml');\n`
+            condition: !existingPlugins.has('yml'),
+            code: `const yml = require('eslint-plugin-yml');\nconst yamlParser = require('yaml-eslint-parser');\n`
         },
         'HTML (ESLint Plugin)': {
             condition: !existingPlugins.has('html'),

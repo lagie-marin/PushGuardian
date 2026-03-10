@@ -25,6 +25,7 @@ module.exports = {
     ],
     action: async (options) => {
         const chalk = getChalk();
+        const normalizePlatform = (platform) => (platform ? String(platform).trim().toLowerCase() : platform);
         try {
             loadEnv();
             const config = loadConfig();
@@ -35,18 +36,20 @@ module.exports = {
             }
 
             if (!config.mirroring) {
-                console.log(chalk.red('❌ Configuration de mise en miroir manquante dans pushguardian.config.json'));
+                console.log(chalk.red('❌ Configuration de mise en miroir manquante dans push-guardian.config.json'));
                 process.exit(1);
             }
 
-            const sourcePlatform = options.source || getEnv('SOURCE_PLATFORM');
-            const targetPlatform = options.target || getEnv('TARGET_PLATFORM');
+            const sourcePlatform = normalizePlatform(options.source || getEnv('SOURCE_PLATFORM'));
+            const targetPlatform = normalizePlatform(options.target || getEnv('TARGET_PLATFORM'));
             const sourceRepo = options.sourceRepo || getEnv('SOURCE_REPO');
             const targetRepo = options.targetRepo || options.repo || getEnv('TARGET_REPO');
             const sourceOwner = options.sourceOwner || getEnv('SOURCE_OWNER');
             const targetOwner = options.targetOwner || getEnv('TARGET_OWNER');
 
-            console.log(`SP: ${sourcePlatform}\tTP: ${targetPlatform}\tSR: ${sourceRepo}\tTR: ${targetRepo}\tSO: ${sourceOwner}\tTO: ${targetOwner}`)
+            console.log(
+                `SP: ${sourcePlatform}\tTP: ${targetPlatform}\tSR: ${sourceRepo}\tTR: ${targetRepo}\tSO: ${sourceOwner}\tTO: ${targetOwner}`
+            );
 
             if (!sourcePlatform || !targetPlatform || !sourceRepo || !targetRepo || !sourceOwner || !targetOwner) {
                 console.log(
@@ -57,7 +60,18 @@ module.exports = {
                 process.exit(1);
             }
 
-            const syncManager = new SyncManager(config.mirroring.platforms);
+            const platformsConfig = {
+                ...(config.mirroring.platforms || {})
+            };
+
+            [sourcePlatform, targetPlatform].filter(Boolean).forEach((platform) => {
+                platformsConfig[platform] = {
+                    ...(platformsConfig[platform] || {}),
+                    enabled: true
+                };
+            });
+
+            const syncManager = new SyncManager(platformsConfig);
             await syncManager.mirror(
                 sourcePlatform,
                 targetPlatform,

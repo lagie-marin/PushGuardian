@@ -1,4 +1,4 @@
-const fs = require('fs');
+let fs = require('fs');
 
 jest.mock('fs');
 
@@ -9,6 +9,7 @@ describe('Core codeQualityTools - configGenerator', () => {
         jest.clearAllMocks();
         jest.spyOn(console, 'log').mockImplementation(() => {});
         jest.resetModules();
+        fs = require('fs');
         
         fs.existsSync.mockReturnValue(false);
         fs.readFileSync.mockReturnValue('');
@@ -231,6 +232,12 @@ describe('Core codeQualityTools - configGenerator', () => {
             expect(result).toContain('files');
         });
 
+        test('generateJavaScriptCode doit retourner null si pattern jsx déjà présent', () => {
+            const result = configGenerator.generateJavaScriptCode(emptyPlugins, new Set(['*.jsx']));
+
+            expect(result).toBeNull();
+        });
+
         test('generateTypeScriptCode doit générer config TS', () => {
             const result = configGenerator.generateTypeScriptCode(emptyPlugins, emptyPatterns);
 
@@ -313,6 +320,42 @@ describe('Core codeQualityTools - configGenerator', () => {
             configGenerator.analyzeExistingConfig(item, existingPlugins, existingFilesPatterns);
 
             expect(existingFilesPatterns.size).toBeGreaterThanOrEqual(0);
+        });
+
+        test('doit gérer files en chaîne simple', () => {
+            const item = {
+                files: '**/*.json'
+            };
+            const existingPlugins = new Set();
+            const existingFilesPatterns = new Set();
+
+            configGenerator.analyzeExistingConfig(item, existingPlugins, existingFilesPatterns);
+
+            expect(existingFilesPatterns.has('**/*.json')).toBe(true);
+        });
+    });
+
+    describe('tool mappings', () => {
+        test('doit retourner les plugins attendus pour chaque outil', () => {
+            expect(configGenerator.getPluginNameForTool('JavaScript (ESLint)')).toBeNull();
+            expect(configGenerator.getPluginNameForTool('TypeScript (TypeScript ESLint)')).toBe('typescript');
+            expect(configGenerator.getPluginNameForTool('JSON (ESLint Plugin)')).toBe('json');
+            expect(configGenerator.getPluginNameForTool('Markdown (ESLint Plugin)')).toBe('markdown');
+            expect(configGenerator.getPluginNameForTool('YAML (ESLint Plugin)')).toBe('yml');
+            expect(configGenerator.getPluginNameForTool('HTML (ESLint Plugin)')).toBe('html');
+            expect(configGenerator.getPluginNameForTool('Nuxt (ESLint Plugin)')).toBe('nuxt');
+            expect(configGenerator.getPluginNameForTool('Unknown Tool')).toBeUndefined();
+        });
+
+        test('doit retourner les patterns attendus pour chaque outil', () => {
+            expect(configGenerator.getFilePatternsForTool('JavaScript (ESLint)')).toEqual(['**/*.js', '**/*.jsx']);
+            expect(configGenerator.getFilePatternsForTool('TypeScript (TypeScript ESLint)')).toEqual(['**/*.ts', '**/*.tsx']);
+            expect(configGenerator.getFilePatternsForTool('JSON (ESLint Plugin)')).toEqual(['**/*.json']);
+            expect(configGenerator.getFilePatternsForTool('Markdown (ESLint Plugin)')).toEqual(['**/*.md']);
+            expect(configGenerator.getFilePatternsForTool('YAML (ESLint Plugin)')).toEqual(['**/*.yaml', '**/*.yml']);
+            expect(configGenerator.getFilePatternsForTool('HTML (ESLint Plugin)')).toEqual(['**/*.html']);
+            expect(configGenerator.getFilePatternsForTool('Nuxt (ESLint Plugin)')).toEqual(['**/*.vue']);
+            expect(configGenerator.getFilePatternsForTool('Unknown Tool')).toEqual([]);
         });
     });
 
@@ -430,6 +473,36 @@ describe('Core codeQualityTools - configGenerator', () => {
             const result = configGenerator.serializeConfig(config);
 
             expect(result).toBeDefined();
+        });
+
+        test('doit sérialiser une fonction nommée', () => {
+            function namedRule() {
+                return true;
+            }
+
+            const config = {
+                files: ['**/*.js'],
+                rules: {
+                    myRule: namedRule
+                }
+            };
+
+            const result = configGenerator.serializeConfig(config);
+
+            expect(result).toContain('[Function: namedRule]');
+        });
+
+        test('doit sérialiser une fonction anonyme', () => {
+            const config = {
+                files: ['**/*.js'],
+                rules: {
+                    inline: new Function('return true;')
+                }
+            };
+
+            const result = configGenerator.serializeConfig(config);
+
+            expect(result).toContain('[Function: anonymous]');
         });
 
         test('doit gérer plugins avec simplification', () => {
@@ -620,7 +693,7 @@ describe('Core codeQualityTools - configGenerator', () => {
 
     describe('generateYAMLCode - conditions de retour null', () => {
         test('doit retourner null si plugin yaml existe', () => {
-            const existingPlugins = new Set(['yaml']);
+            const existingPlugins = new Set(['yml']);
             const existingFilesPatterns = new Set();
 
             const result = configGenerator.generateYAMLCode(existingPlugins, existingFilesPatterns);
@@ -714,6 +787,22 @@ describe('Core codeQualityTools - configGenerator', () => {
 
             expect(result).not.toBeNull();
             expect(result).toContain('**/*.nuxt');
+        });
+    });
+
+    describe('createNewConfig', () => {
+        test('doit créer eslint.config.js avec imports et configs', async () => {
+            fs.writeFileSync.mockImplementation(() => {});
+
+            await configGenerator.createNewConfig(['TypeScript (TypeScript ESLint)']);
+
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+                'eslint.config.js',
+                expect.stringContaining('module.exports = [')
+            );
+            expect(console.log).toHaveBeenCalledWith(
+                expect.stringContaining('Nouvelle configuration ESLint créée')
+            );
         });
     });
 });

@@ -75,10 +75,10 @@ describe('Core Mirroring - generate', () => {
 
             expect(workflowContent).toContain('SOURCE_PLATFORM');
             expect(workflowContent).toContain('TARGET_PLATFORM');
-            expect(workflowContent).toContain('REPO_NAME');
-            expect(workflowContent).toContain('SOURCE_OWNER');
+            expect(workflowContent).toContain('TARGET_REPO');
+            expect(workflowContent).toContain('CURRENT_OWNER');
             expect(workflowContent).toContain('TARGET_OWNER');
-            expect(workflowContent).toContain('GITHUB_TOKEN');
+            expect(workflowContent).toContain('GIT_TOKEN');
             expect(workflowContent).toContain('GITLAB_TOKEN');
         });
 

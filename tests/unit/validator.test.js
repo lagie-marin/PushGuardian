@@ -2,6 +2,7 @@ const { validateCode } = require('../../src/core/validator');
 const { loadConfig } = require('../../src/core/configManager');
 const fs = require('fs');
 const execa = require('../../src/utils/exec-wrapper');
+const { constrains } = require('../../src/hooks/constrains/constrains');
 
 jest.mock('../../src/core/configManager');
 jest.mock('fs');
@@ -160,6 +161,55 @@ describe('Core - validator', () => {
 
             expect(result.success).toBe(true);
             expect(result.errors).toEqual([]);
+        });
+
+        test('doit quitter si aucun dossier n\'est configuré', async () => {
+            loadConfig.mockReturnValue({
+                validate: {
+                    activateCQT: true,
+                    directories: []
+                }
+            });
+
+            await validateCode();
+
+            expect(console.error).toHaveBeenCalledWith(
+                '❌ Aucun dossier à valider. Vérifiez votre configuration.'
+            );
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+
+        test('doit quitter si onMissing=error et aucun dossier valide', async () => {
+            loadConfig.mockReturnValue({
+                validate: {
+                    activateCQT: true,
+                    directories: ['missing-a', 'missing-b'],
+                    onMissing: 'error'
+                }
+            });
+            fs.existsSync.mockReturnValue(false);
+
+            await validateCode();
+
+            expect(console.error).toHaveBeenCalledWith(
+                '❌ Aucun dossier valide à valider. Vérifiez votre configuration.'
+            );
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+
+        test('doit exécuter les contraintes si option hooks est fournie', async () => {
+            loadConfig.mockReturnValue({
+                validate: {
+                    activateCQT: true,
+                    directories: ['src']
+                }
+            });
+            fs.existsSync.mockReturnValue(true);
+            execa.mockResolvedValue({ stdout: '', stderr: '' });
+
+            await validateCode({ msg: 'abc' }, { hooks: 'pre-push' });
+
+            expect(constrains).toHaveBeenCalledWith('pre-push', { msg: 'abc' });
         });
     });
 });

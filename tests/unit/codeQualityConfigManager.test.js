@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+let fs = require('fs');
+let path = require('path');
 
 jest.mock('fs');
 jest.mock('path');
@@ -12,6 +12,8 @@ describe('Core codeQualityTools - configManager', () => {
         jest.clearAllMocks();
         jest.spyOn(console, 'log').mockImplementation(() => {});
         jest.resetModules();
+        fs = require('fs');
+        path = require('path');
         
         fs.existsSync.mockReturnValue(false);
         fs.readFileSync.mockReturnValue('');
@@ -165,6 +167,33 @@ describe('Core codeQualityTools - configManager', () => {
             const result = await configManager.loadExistingConfig('eslint.config.js');
 
             expect(Array.isArray(result.existingConfig)).toBe(true);
+        });
+
+        test('doit analyser et charger un module de config réel', async () => {
+            fs.existsSync.mockReturnValue(true);
+            path.resolve.mockReturnValue(
+                '/home/lagie/Epitech/projets/hub/push-guardian/tests/fixtures/mock-eslint-config-single.js'
+            );
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result.existingConfig.length).toBe(1);
+            expect(result.existingPlugins.has('typescript')).toBe(true);
+            expect(result.existingFilesPatterns.has('**/*.ts')).toBe(true);
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Configuration ESLint existante détectée'));
+        });
+
+        test('doit traiter une configuration exportée en tableau', async () => {
+            fs.existsSync.mockReturnValue(true);
+            path.resolve.mockReturnValue(
+                '/home/lagie/Epitech/projets/hub/push-guardian/tests/fixtures/mock-eslint-config-array.js'
+            );
+
+            const result = await configManager.loadExistingConfig('eslint.config.js');
+
+            expect(result.existingConfig.length).toBe(1);
+            expect(result.existingPlugins.has('json')).toBe(true);
+            expect(result.existingFilesPatterns.has('**/*.json')).toBe(true);
         });
     });
 

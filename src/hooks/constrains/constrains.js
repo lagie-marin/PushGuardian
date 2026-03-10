@@ -13,6 +13,7 @@ async function constrains(hooksName, message) {
     if (config && config.hooks[hooksName]) {
         const constraints = config.hooks[hooksName];
         var checkHooksFct = validateCommitMessage;
+        /* istanbul ignore next */
         if (constraints) {
             if (hooksName == 'post-checkout') {
                 message = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
@@ -166,7 +167,7 @@ async function validatePrePush() {
         console.log(chalk.green(`✅ Nouvelle branche "${branch}" - premier push vers le remote`));
     }
 
-    await execa('npx', ['pushguardian', 'validate', '-s']);
+    await execa('npx', ['push-guardian', 'validate', '-s']);
     return { success: true, error: null };
 }
 

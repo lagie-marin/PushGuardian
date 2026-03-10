@@ -59,6 +59,16 @@ describe('Constraint Engine', () => {
             const message = engine.getErrorMessage('noMessage');
             expect(message).toBe('Erreur de validation: noMessage');
         });
+
+        test('doit retourner message noTrailingWhitespace', () => {
+            const message = engine.getErrorMessage('noTrailingWhitespace');
+            expect(message).toBe("Le message ne doit pas contenir d'espaces en fin");
+        });
+
+        test('doit gérer disallowedWords avec paramètre string', () => {
+            const message = engine.getErrorMessage('disallowedWords', 'spam');
+            expect(message).toBe('Le message contient des mots interdits: spam');
+        });
     });
 
     describe('validate - gestion des contraintes inconnues', () => {
@@ -244,6 +254,13 @@ describe('Constraint Engine', () => {
             expect((await engine.validate('[URGENT] Important message', constraints)).isValid).toBe(false);
             expect((await engine.validate('Important message!', constraints)).isValid).toBe(false);
         });
+
+        test('autoStartWith - doit préfixer uniquement si nécessaire', () => {
+            const validator = engine.constraints.get('autoStartWith');
+
+            expect(validator('feat message', 'feat: ')).toBe('feat: feat message');
+            expect(validator('feat: message', 'feat: ')).toBe('feat: message');
+        });
     });
 
     describe('Contraintes de types et mots', () => {
@@ -333,6 +350,13 @@ describe('Constraint Engine', () => {
             expect((await engine.validate('test', { constraints: { mustMatchPattern: invalidPattern } })).isValid).toBe(
                 false
             );
+        });
+
+        test('mustNotMatchPattern avec regex invalide doit retourner true', async () => {
+            const invalidPattern = 'invalid[regex';
+            const result = await engine.validate('test', { constraints: { mustNotMatchPattern: invalidPattern } });
+
+            expect(result.isValid).toBe(true);
         });
     });
 

@@ -109,6 +109,15 @@ describe('CLI Command - security', () => {
             expect(console.log).toHaveBeenCalledWith(expect.stringContaining('JAVA'));
         });
 
+        test('doit détecter .NET avec csproj', async () => {
+            fs.existsSync.mockImplementation((p) => p.includes('*.csproj'));
+
+            await securityCommand.action({});
+
+            expect(console.log).toHaveBeenCalledWith(expect.stringContaining('DOTNET'));
+            expect(execa).toHaveBeenCalledWith('dotnet', ['list', 'package', '--vulnerable']);
+        });
+
         test('doit détecter Go avec go.mod', async () => {
             fs.existsSync.mockImplementation((p) => p.includes('go.mod'));
 
