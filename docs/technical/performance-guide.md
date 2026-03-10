@@ -1,8 +1,8 @@
-# Guide de Performance PushGuardian
+# Guide de Performance push-guardian
 
 ## Introduction
 
-Le module de performance de PushGuardian permet d'analyser et d'optimiser les temps d'exécution des validations, hooks et autres opérations.
+Le module de performance de push-guardian permet d'analyser et d'optimiser les temps d'exécution des validations, hooks et autres opérations.
 
 ## Collecte de métriques
 
@@ -11,7 +11,7 @@ Le module de performance de PushGuardian permet d'analyser et d'optimiser les te
 La collecte de métriques est activée par défaut. Pour la désactiver:
 
 ```javascript
-// pushguardian.config.json
+// push-guardian.config.json
 {
   "performance": {
     "enabled": false
@@ -34,19 +34,19 @@ Le système collecte automatiquement:
 
 ```bash
 # Analyser les performances actuelles
-npx pushguardian performance --analyze
+npx push-guardian performance --analyze
 
 # Comparer avec un rapport précédent
-npx pushguardian performance --compare performance-report.json
+npx push-guardian performance --compare performance-report.json
 
 # Réinitialiser les métriques
-npx pushguardian performance --reset
+npx push-guardian performance --reset
 ```
 
 ### Analyse programmatique
 
 ```javascript
-const performanceAnalyzer = require('pushguardian/core/performance/performanceAnalyzer');
+const performanceAnalyzer = require('push-guardian/core/performance/performanceAnalyzer');
 
 // Lancer une analyse
 const report = await performanceAnalyzer.analyze();
@@ -105,7 +105,7 @@ Rapport sauvegarde: performance-report.json
 Le cache peut réduire significativement les temps de validation:
 
 ```javascript
-// pushguardian.config.json
+// push-guardian.config.json
 {
   "cache": {
     "enabled": true,
@@ -144,7 +144,7 @@ module.exports = [
 Activer la parallélisation des validations:
 
 ```javascript
-// pushguardian.config.json
+// push-guardian.config.json
 {
   "codeQualityTools": {
     "parallel": true,
@@ -161,7 +161,7 @@ Valider uniquement les fichiers modifiés:
 
 ```bash
 # Git hook pre-commit
-npx pushguardian validate --staged
+npx push-guardian validate --staged
 ```
 
 **Gain attendu**: 80-95% sur les commits partiels
@@ -193,12 +193,12 @@ class OptimizedPlugin extends BasePlugin {
 
 ```bash
 # Baseline
-npx pushguardian performance --analyze
+npx push-guardian performance --analyze
 mv performance-report.json baseline.json
 
 # Après optimisation
-npx pushguardian performance --analyze
-npx pushguardian performance --compare baseline.json
+npx push-guardian performance --analyze
+npx push-guardian performance --compare baseline.json
 ```
 
 ### Résultat de comparaison
@@ -215,7 +215,7 @@ Comparaison avec le rapport precedent:
 ### Enregistrement manuel
 
 ```javascript
-const metricsCollector = require('pushguardian/core/performance/metricsCollector');
+const metricsCollector = require('push-guardian/core/performance/metricsCollector');
 
 metricsCollector.start();
 
@@ -287,7 +287,7 @@ jobs:
       
       - name: Analyse performance
         run: |
-          npx pushguardian performance --analyze
+          npx push-guardian performance --analyze
           
       - name: Upload rapport
         uses: actions/upload-artifact@v2
@@ -321,7 +321,7 @@ class PerformanceAlertPlugin extends BasePlugin {
 
 ```bash
 # Ajouter à votre workflow quotidien
-npx pushguardian performance --analyze
+npx push-guardian performance --analyze
 ```
 
 ### 2. Établir des baselines
@@ -329,7 +329,7 @@ npx pushguardian performance --analyze
 Sauvegarder des rapports de référence après chaque release:
 
 ```bash
-npx pushguardian performance --analyze
+npx push-guardian performance --analyze
 cp performance-report.json baselines/v2.0.0.json
 ```
 
@@ -338,8 +338,8 @@ cp performance-report.json baselines/v2.0.0.json
 Comparer automatiquement avec la baseline:
 
 ```bash
-npx pushguardian performance --analyze
-npx pushguardian performance --compare baselines/v2.0.0.json
+npx push-guardian performance --analyze
+npx push-guardian performance --compare baselines/v2.0.0.json
 ```
 
 ### 4. Optimiser progressivement

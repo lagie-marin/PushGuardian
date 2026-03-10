@@ -1,6 +1,6 @@
-# **PushGuardian 🛡️**
+# **push-guardian 🛡️**
 
-**PushGuardian** est un outil complet de validation CI/CD conçu pour garantir la qualité du code et automatiser les vérifications avant les pushs Git. Il intègre des outils comme ESLint, Prettier et des contraintes personnalisées pour analyser, formater et valider votre code selon les meilleures pratiques.
+**push-guardian** est un outil complet de validation CI/CD conçu pour garantir la qualité du code et automatiser les vérifications avant les pushs Git. Il intègre des outils comme ESLint, Prettier et des contraintes personnalisées pour analyser, formater et valider votre code selon les meilleures pratiques.
 
 ---
 
@@ -58,19 +58,19 @@
 ### **Installation Globale**
 
 ```bash
-npm install -g pushguardian
+npm install -g push-guardian
 ```
 ### **Installation Locale dans un Projet**
 
 ```bash
 cd votre-projet
-npx pushguardian install
+npx push-guardian install
 ```
 
 ### **Développement**
 ```bash
 git clone <repository>
-cd pushguardian
+cd push-guardian
 npm install
 npm link  # Pour l'utiliser en développement
 ```
@@ -80,7 +80,7 @@ npm link  # Pour l'utiliser en développement
 
 ### **1. Installation Interactive**
 ```bash
-npx pushguardian install
+npx push-guardian install
 ```
 
 Lance un menu interactif pour installer :
@@ -94,7 +94,7 @@ Options:
 
 ### **2. Validation du Code**
 ```bash
-npx pushguardian validate
+npx push-guardian validate
 ```
 Valide le code selon la configuration établie.
 
@@ -108,7 +108,7 @@ Options :
 ### **3. Mirroring de Référentiels**
 
 ```bash
-npx pushguardian mirror
+npx push-guardian mirror
 ```
 Effectue le mirroring d'un référentiel source vers une plateforme cible (GitHub, GitLab, BitBucket, Azure DevOps).
 
@@ -127,13 +127,13 @@ Options :
 Exemples :
 
 ```bash
-npx pushguardian mirror --source github --target gitlab --repo myproject --source-owner myorg --target-owner myorg
-npx pushguardian mirror --sync-branches --public-repo
-npx pushguardian mirror --generate 
+npx push-guardian mirror --source github --target gitlab --repo myproject --source-owner myorg --target-owner myorg
+npx push-guardian mirror --sync-branches --public-repo
+npx push-guardian mirror --generate 
 ```
 
 #### **Workflow GitHub Actions**
-PushGuardian inclut un workflow GitHub Actions pour automatiser le mirroring. Le workflow se déclenche automatiquement sur les événements suivants :
+push-guardian inclut un workflow GitHub Actions pour automatiser le mirroring. Le workflow se déclenche automatiquement sur les événements suivants :
 - **Push** sur les branches `main` ou `master`
 - **Manuellement** via workflow_dispatch
 - **Planifié** tous les jours à 2h UTC
@@ -158,13 +158,13 @@ Pour configurer le mirroring automatique :
      - `AZURE_DEVOPS_URL` : URL de l'organisation Azure DevOps
      - `AZURE_DEVOPS_TOKEN` : Token d'accès Azure DevOps
 
-Le workflow clonera automatiquement PushGuardian, installera les dépendances et exécutera la commande mirror avec vos paramètres configurés.
+Le workflow clonera automatiquement push-guardian, installera les dépendances et exécutera la commande mirror avec vos paramètres configurés.
 
 ### **4. Gestion de Configuration**
 ```bash
-npx pushguardian config [clé] [valeur]
+npx push-guardian config [clé] [valeur]
 ```
-Gère la configuration de PushGuardian.
+Gère la configuration de push-guardian.
 
 Options :
 
@@ -173,13 +173,13 @@ Options :
 
 Exemples :
 ```bash
-npx pushguardian config --list
-npx pushguardian config validate.directories '["src/", "lib/"]'
+npx push-guardian config --list
+npx push-guardian config validate.directories '["src/", "lib/"]'
 ```
 
 ## **Configuration**
 ### **Fichier de Configuration Principal**
-PushGuardian utilise un fichier `pushguardian.config.json` à la racine de votre projet :
+push-guardian utilise un fichier `push-guardian.config.json` à la racine de votre projet :
 ```json
 {
   "validate": {
@@ -244,7 +244,7 @@ Voici les contraintes prédéfinies que vous pouvez utiliser dans la configurati
 ## **Architecture**
 ### **Structure des Fichiers**
 ```text
-pushguardian/
+push-guardian/
 ├── src/
 │   ├── cli/                          # Interface en ligne de commande
 │   │   ├── command/                  # Commandes principales
@@ -338,7 +338,7 @@ async function setupNouveauLangage() {
 ## **Problèmes Courants**
 ### **❌ "Hook existe déjà"**
 ```bash
-npx pushguardian install --force
+npx push-guardian install --force
 ```
 ### **❌ "Répertoire .git/hooks non trouvé"**
 Assurez-vous d'être dans un dépôt Git initialisé :
@@ -355,12 +355,12 @@ chmod +x .git/hooks/*
 ## **Logs de Débogage**
 Activez le mode verbeux :
 ```bash
-npx pushguardian validate --verbose
+npx push-guardian validate --verbose
 ```
 ## **Réinitialisation**
 Pour tout réinitialiser :
 ```bash
-rm -f pushguardian.config.json
+rm -f push-guardian.config.json
 rm -f eslint.config.js
 rm -f .git/hooks/pre-push .git/hooks/commit-msg .git/hooks/post-checkout
 ```

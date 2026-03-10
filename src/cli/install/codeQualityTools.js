@@ -17,7 +17,7 @@ function createCodeQualityConfig(installedTools) {
         }
     };
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
 
     try {
         let existingConfig = {};

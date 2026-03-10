@@ -51,7 +51,7 @@ describe('CLI Command - plugin', () => {
             await pluginCommand.action('enable', [], {});
 
             expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining('pushguardian plugin enable <nom>')
+                expect.stringContaining('push-guardian plugin enable <nom>')
             );
         });
     });
@@ -75,7 +75,7 @@ describe('CLI Command - plugin', () => {
             await pluginCommand.action('disable', [], {});
 
             expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining('pushguardian plugin disable <nom>')
+                expect.stringContaining('push-guardian plugin disable <nom>')
             );
         });
     });
@@ -160,7 +160,7 @@ describe('CLI Command - plugin', () => {
 
             expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('requis'));
             expect(consoleLogSpy).toHaveBeenCalledWith(
-                expect.stringContaining('pushguardian plugin run <commande>')
+                expect.stringContaining('push-guardian plugin run <commande>')
             );
             expect(pluginManager.executeCommand).not.toHaveBeenCalled();
         });

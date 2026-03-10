@@ -12,13 +12,13 @@ Les plugins sont maintenant **automatiquement sauvegardés** et **rechargés** �
 
 ### 1. Fichier de configuration
 
-Quand vous chargez des plugins, leurs chemins sont sauvegardés dans `.pushguardian-plugins.json` :
+Quand vous chargez des plugins, leurs chemins sont sauvegardés dans `.push-guardian-plugins.json` :
 
 ```json
 {
   "pluginPaths": [
-    "/home/user/PushGuardian/examples",
-    "/home/user/PushGuardian/plugins"
+    "/home/user/push-guardian/examples",
+    "/home/user/push-guardian/plugins"
   ],
   "plugins": [
     {
@@ -38,7 +38,7 @@ Quand vous chargez des plugins, leurs chemins sont sauvegardés dans `.pushguard
 ### 2. Chargement automatique
 
 Au démarrage de chaque commande, le `PluginRegistry` :
-1. Lit `.pushguardian-plugins.json`
+1. Lit `.push-guardian-plugins.json`
 2. Recharge tous les plugins depuis les chemins sauvegardés
 3. Restaure leur configuration et état (activé/désactivé)
 
@@ -48,8 +48,8 @@ Au démarrage de chaque commande, le `PluginRegistry` :
 
 ```bash
 # Charger des plugins depuis un répertoire
-npx pushguardian plugin --load ./examples
-npx pushguardian plugin --load ./plugins
+npx push-guardian plugin --load ./examples
+npx push-guardian plugin --load ./plugins
 
 # Les plugins sont automatiquement sauvegardés
 ```
@@ -58,7 +58,7 @@ npx pushguardian plugin --load ./plugins
 
 ```bash
 # Dans n'importe quelle session, même après redémarrage
-npx pushguardian plugin --list
+npx push-guardian plugin --list
 ```
 
 Résultat :
@@ -72,7 +72,7 @@ Plugins installés:
 ### Obtenir des informations
 
 ```bash
-npx pushguardian plugin --info example-plugin
+npx push-guardian plugin --info example-plugin
 ```
 
 Résultat :
@@ -88,16 +88,16 @@ Configuration: { enabled: true, verbose: true }
 
 ```bash
 # Désactiver un plugin (reste chargé mais inactif)
-npx pushguardian plugin --disable example-plugin
+npx push-guardian plugin --disable example-plugin
 
 # Réactiver
-npx pushguardian plugin --enable example-plugin
+npx push-guardian plugin --enable example-plugin
 ```
 
 ## Fichiers générés
 
-- `.pushguardian-plugins.json` : Configuration et chemins des plugins
-- `.pushguardian-cache/` : Cache du système
+- `.push-guardian-plugins.json` : Configuration et chemins des plugins
+- `.push-guardian-cache/` : Cache du système
 - `.review-apps/` : Déploiements des Review Apps
 - `performance-report.json` : Rapports de performance
 
@@ -114,7 +114,7 @@ Les plugins sont rechargés (cache vidé) à chaque chargement pour permettre le
 vim examples/example-plugin.js
 
 # Recharger
-npx pushguardian plugin --load ./examples
+npx push-guardian plugin --load ./examples
 
 # Les modifications sont prises en compte
 ```
@@ -128,7 +128,7 @@ Si un plugin ne peut pas être chargé (erreur de syntaxe, dépendance manquante
 Pour supprimer tous les plugins :
 
 ```bash
-rm .pushguardian-plugins.json
+rm .push-guardian-plugins.json
 ```
 
 Puis redémarrer une commande - aucun plugin ne sera chargé.
@@ -137,27 +137,27 @@ Puis redémarrer une commande - aucun plugin ne sera chargé.
 
 ```bash
 # 1. Charger des plugins
-npx pushguardian plugin --load ./examples
+npx push-guardian plugin --load ./examples
 # > Plugin example-plugin enregistré
 # > 1 plugin(s) chargé(s) depuis ./examples
 
 # 2. Fermer le terminal, en rouvrir un nouveau
 
 # 3. Lister les plugins (ils sont toujours là !)
-npx pushguardian plugin --list
+npx push-guardian plugin --list
 # > Plugins installés:
 # >   [Actif] example-plugin v1.0.0
 
 # 4. Utiliser le plugin dans une validation
-npx pushguardian validate
+npx push-guardian validate
 # > [Example Plugin] Pre-validation hook execute
 # > ...
 
 # 5. Désactiver temporairement
-npx pushguardian plugin --disable example-plugin
+npx push-guardian plugin --disable example-plugin
 
 # 6. Réactiver
-npx pushguardian plugin --enable example-plugin
+npx push-guardian plugin --enable example-plugin
 ```
 
 ## Avantages

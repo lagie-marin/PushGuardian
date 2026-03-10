@@ -1,6 +1,3 @@
-const { Octokit } = require('@octokit/rest');
-const { WebApi } = require('azure-devops-node-api');
-const { Bitbucket } = require('bitbucket');
 const { Gitlab } = require('gitlab');
 const simpleGit = require('simple-git');
 const path = require('path');
@@ -17,30 +14,8 @@ class SyncManager {
         this.branchSynchronizer = new BranchSynchronizer(this.clients);
     }
 
-    getGithubToken() {
-        const legacyToken = getEnv('GIT_TOKEN');
-        if (legacyToken) return legacyToken;
-        return process.env.GITHUB_TOKEN || '';
-    }
-
     initClients() {
         const clients = {};
-
-        if (this.config.github && this.config.github.enabled) {
-            try {
-                const token = this.getGithubToken();
-                if (!token) {
-                    console.warn(
-                        '⚠️  GITHUB_TOKEN (ou GIT_TOKEN) manquant: utilisation de GitHub en accès anonyme (lecture publique uniquement)'
-                    );
-                    clients.github = new Octokit();
-                } else {
-                    clients.github = new Octokit({ auth: token });
-                }
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client GitHub: ${error.message}`);
-            }
-        }
 
         if (this.config.gitlab && this.config.gitlab.enabled) {
             try {
@@ -48,27 +23,6 @@ class SyncManager {
                 clients.gitlab = new Gitlab({ token: token });
             } catch (error) {
                 console.warn(`⚠️  Impossible d'initialiser le client GitLab: ${error.message}`);
-            }
-        }
-
-        if (this.config.bitbucket && this.config.bitbucket.enabled) {
-            try {
-                const token = getEnv('BIT_BUCKET');
-                clients.bitbucket = new Bitbucket({
-                    auth: { token: token }
-                });
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client BitBucket: ${error.message}`);
-            }
-        }
-
-        if (this.config.azure && this.config.azure.enabled) {
-            try {
-                const url = getEnv('AZURE_DEVOPS_URL');
-                const token = getEnv('AZURE_DEVOPS_TOKEN');
-                clients.azure = new WebApi(url, token);
-            } catch (error) {
-                console.warn(`⚠️  Impossible d'initialiser le client Azure DevOps: ${error.message}`);
             }
         }
 

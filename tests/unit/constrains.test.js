@@ -399,7 +399,7 @@ describe('Hooks - constrains', () => {
 
             await validatePrePush();
 
-            expect(execa).toHaveBeenCalledWith('npx', ['pushguardian', 'validate', '-s']);
+            expect(execa).toHaveBeenCalledWith('npx', ['push-guardian', 'validate', '-s']);
         });
 
         test('ne doit pas quitter si la branche distante est synchronisée', async () => {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const CONFIG_PATH = path.resolve(process.cwd(), 'pushguardian.config.json');
+const CONFIG_PATH = path.resolve(process.cwd(), 'push-guardian.config.json');
 
 if (!CONFIG_PATH.startsWith(process.cwd())) {
     console.error('❌ Le fichier de configuration doit être situé à la racine du projet.');

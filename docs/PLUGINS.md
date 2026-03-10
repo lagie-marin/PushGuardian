@@ -1,6 +1,6 @@
-# Système de Plugins PushGuardian v2
+# Système de Plugins push-guardian v2
 
-Le système de plugins PushGuardian v2 permet d'étendre les fonctionnalités via des commandes personnalisées.
+Le système de plugins push-guardian v2 permet d'étendre les fonctionnalités via des commandes personnalisées.
 
 ## Caractéristiques
 
@@ -13,33 +13,33 @@ Le système de plugins PushGuardian v2 permet d'étendre les fonctionnalités vi
 ### Lister les plugins installés
 
 ```bash
-pushguardian plugin list
+push-guardian plugin list
 ```
 
 ### Activer/Désactiver un plugin
 
 ```bash
-pushguardian plugin enable <nom-du-plugin>
-pushguardian plugin disable <nom-du-plugin>
+push-guardian plugin enable <nom-du-plugin>
+push-guardian plugin disable <nom-du-plugin>
 ```
 
 ### Lister les commandes disponibles
 
 ```bash
-pushguardian plugin commands
+push-guardian plugin commands
 ```
 
 ### Exécuter une commande de plugin
 
 ```bash
-pushguardian plugin run <nom-du-plugin> <commande> [args...]
+push-guardian plugin run <nom-du-plugin> <commande> [args...]
 ```
 
 Exemple avec le plugin d'exemple :
 ```bash
-pushguardian plugin run example-plugin hello
-pushguardian plugin run example-plugin greet "John"
-pushguardian plugin run example-plugin info
+push-guardian plugin run example-plugin hello
+push-guardian plugin run example-plugin greet "John"
+push-guardian plugin run example-plugin info
 ```
 
 ## Créer un plugin
@@ -103,7 +103,7 @@ module.exports = MonPlugin;
 
 ## Configuration locale
 
-Le fichier `.pushguardian-plugins.json` stocke la configuration locale :
+Le fichier `.push-guardian-plugins.json` stocke la configuration locale :
 
 ```json
 {
@@ -121,7 +121,7 @@ Le fichier `.pushguardian-plugins.json` stocke la configuration locale :
 ## Architecture
 
 ```
-PushGuardian
+push-guardian
 │
 ├── src/core/
 │   └── plugins/
@@ -142,7 +142,7 @@ PushGuardian
 
 - Les plugins sont des **extensions de commandes** uniquement
 - Ils **ne s'exécutent pas automatiquement** lors des hooks Git
-- Utilisez `pushguardian plugin run <plugin> <commande>` pour les exécuter
+- Utilisez `push-guardian plugin run <plugin> <commande>` pour les exécuter
 - La désactivation d'un plugin empêche l'exécution de ses commandes
 - Le manifest (`plugin.json`) est obligatoire et doit contenir : name, version, description, author, main
 - Les plugins sont créés localement dans le dossier `plugins/` à la racine du projet
@@ -175,7 +175,7 @@ Classe de base que tous les plugins doivent étendre.
 
 ## Configuration locale
 
-Le fichier `.pushguardian-plugins.json` stocke la configuration locale :
+Le fichier `.push-guardian-plugins.json` stocke la configuration locale :
 
 ```json
 {
@@ -193,7 +193,7 @@ Le fichier `.pushguardian-plugins.json` stocke la configuration locale :
 ## Architecture
 
 ```
-PushGuardian
+push-guardian
 │
 ├── src/core/
 │   ├── api/
@@ -218,6 +218,6 @@ PushGuardian
 
 - Les plugins sont des **extensions de commandes** uniquement
 - Ils **ne s'exécutent pas automatiquement** lors des hooks Git
-- Utilisez `pushguardian plugin run <plugin> <commande>` pour les exécuter
+- Utilisez `push-guardian plugin run <plugin> <commande>` pour les exécuter
 - La désactivation d'un plugin empêche l'exécution de ses commandes
 - Le manifest (`plugin.json`) est obligatoire et doit contenir : name, version, description, author, main

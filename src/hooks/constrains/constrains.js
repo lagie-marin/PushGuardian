@@ -167,7 +167,7 @@ async function validatePrePush() {
         console.log(chalk.green(`✅ Nouvelle branche "${branch}" - premier push vers le remote`));
     }
 
-    await execa('npx', ['pushguardian', 'validate', '-s']);
+    await execa('npx', ['push-guardian', 'validate', '-s']);
     return { success: true, error: null };
 }
 

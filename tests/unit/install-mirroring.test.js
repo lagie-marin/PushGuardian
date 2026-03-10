@@ -214,7 +214,7 @@ describe('CLI Install - mirroring', () => {
             );
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -230,7 +230,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['GitHub'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -251,7 +251,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['GitHub'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -288,7 +288,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['GitHub'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             expect(configWrites.length).toBeGreaterThan(0);
         });
@@ -297,7 +297,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['GitHub'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -311,7 +311,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['GitLab'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -324,7 +324,7 @@ describe('CLI Install - mirroring', () => {
             mirroring.createMirroringConfig(['Unknown Platform'], {}, {});
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             const savedConfig = JSON.parse(configWrites[0][1]);
 
@@ -601,7 +601,7 @@ describe('CLI Install - mirroring', () => {
 
             expect(interactiveMenu).toHaveBeenCalled();
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             expect(configWrites.length).toBeGreaterThan(0);
         });
@@ -626,7 +626,7 @@ describe('CLI Install - mirroring', () => {
             await mirroring.installMirroringTools();
 
             const configWrites = fs.writeFileSync.mock.calls.filter(
-                call => call[0] === 'pushguardian.config.json'
+                call => call[0] === 'push-guardian.config.json'
             );
             expect(configWrites.length).toBeGreaterThan(0);
         });

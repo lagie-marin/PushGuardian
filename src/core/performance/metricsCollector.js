@@ -12,14 +12,59 @@ class MetricsCollector {
             linting: [],
             tests: []
         };
+        this.systemMetrics = {
+            memory: {
+                min: Infinity,
+                max: 0,
+                samples: []
+            },
+            cpu: {
+                samples: []
+            }
+        };
         this.startTime = null;
+        this.monitoringInterval = null;
     }
 
     /**
-     * Démarre la collecte
+     * Démarre la collecte avec monitoring système
      */
     start() {
         this.startTime = Date.now();
+
+        // Démarrer le monitoring des ressources système
+        this.startSystemMonitoring();
+    }
+
+    /**
+     * Démarre le monitoring des ressources système
+     */
+    startSystemMonitoring() {
+        // Capturer les métriques toutes les 100ms
+        this.monitoringInterval = setInterval(() => {
+            const memUsage = process.memoryUsage();
+            const memoryMB = memUsage.heapUsed / 1024 / 1024;
+
+            this.systemMetrics.memory.samples.push(memoryMB);
+            this.systemMetrics.memory.min = Math.min(this.systemMetrics.memory.min, memoryMB);
+            this.systemMetrics.memory.max = Math.max(this.systemMetrics.memory.max, memoryMB);
+
+            // Capturer les stats CPU si disponible
+            if (process.cpuUsage) {
+                const cpuUsage = process.cpuUsage();
+                this.systemMetrics.cpu.samples.push(cpuUsage);
+            }
+        }, 100);
+    }
+
+    /**
+     * Arrête le monitoring système
+     */
+    stop() {
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+            this.monitoringInterval = null;
+        }
     }
 
     /**
@@ -27,6 +72,11 @@ class MetricsCollector {
      * @param {Object} metric - Métrique à enregistrer
      */
     recordValidation(metric) {
+        // Démarrer le monitoring automatiquement si pas encore démarré
+        if (!this.startTime) {
+            this.start();
+        }
+
         this.metrics.validation.push({
             ...metric,
             timestamp: Date.now()
@@ -40,6 +90,11 @@ class MetricsCollector {
      * @param {boolean} success - Succès ou échec
      */
     recordHook(hookName, duration, success) {
+        // Démarrer le monitoring automatiquement si pas encore démarré
+        if (!this.startTime) {
+            this.start();
+        }
+
         this.metrics.hooks.push({
             name: hookName,
             duration,
@@ -53,6 +108,11 @@ class MetricsCollector {
      * @param {Object} metric - Métrique de linting
      */
     recordLinting(metric) {
+        // Démarrer le monitoring automatiquement si pas encore démarré
+        if (!this.startTime) {
+            this.start();
+        }
+
         this.metrics.linting.push({
             ...metric,
             timestamp: Date.now()
@@ -92,14 +152,63 @@ class MetricsCollector {
     }
 
     /**
+     * Récupère toutes les métriques
+     * @returns {Object} - Métriques collectées
+     */
+    getMetrics() {
+        // Arrêter le monitoring si actif
+        this.stop();
+
+        // Calculer les métriques système finales
+        const systemMetrics = {
+            memory: {
+                min: this.systemMetrics.memory.min === Infinity ? 0 : this.systemMetrics.memory.min,
+                max: this.systemMetrics.memory.max,
+                avg:
+                    this.systemMetrics.memory.samples.length > 0
+                        ? this.systemMetrics.memory.samples.reduce((a, b) => a + b, 0) /
+                          this.systemMetrics.memory.samples.length
+                        : 0
+            },
+            threads: {
+                active: process._getActiveHandles ? process._getActiveHandles().length : 0,
+                resources: process.getActiveResourcesInfo ? process.getActiveResourcesInfo().length : 0
+            }
+        };
+
+        return {
+            ...this.metrics,
+            totalDuration: this.startTime ? Date.now() - this.startTime : 0,
+            system: systemMetrics,
+            stats: {
+                validation: this.calculateStats(this.metrics.validation),
+                hooks: this.calculateStats(this.metrics.hooks),
+                linting: this.calculateStats(this.metrics.linting),
+                tests: this.calculateStats(this.metrics.tests)
+            }
+        };
+    }
+
+    /**
      * Réinitialise les métriques
      */
     reset() {
+        this.stop();
         this.metrics = {
             validation: [],
             hooks: [],
             linting: [],
             tests: []
+        };
+        this.systemMetrics = {
+            memory: {
+                min: Infinity,
+                max: 0,
+                samples: []
+            },
+            cpu: {
+                samples: []
+            }
         };
         this.startTime = null;
     }

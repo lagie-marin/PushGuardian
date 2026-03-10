@@ -45,7 +45,7 @@ describe('Core Plugins - pluginRegistry', () => {
         });
 
         test('doit définir configPath', () => {
-            expect(pluginRegistry.configPath).toContain('.pushguardian-plugins.json');
+            expect(pluginRegistry.configPath).toContain('.push-guardian-plugins.json');
         });
 
         test('doit définir pluginsDir', () => {

@@ -1,8 +1,8 @@
 {
-    "name": "pushguardian",
+    "name": "push-guardian",
     "version": "1.0.0",
     "bin": {
-        "pushguardian": "src/cli/index.js"
+        "push-guardian": "src/cli/index.js"
     },
     "description": "",
     "main": "index.js",
@@ -14,11 +14,11 @@
         "coverage:report": "node scripts/coverage-report.js",
         "start": "node src/cli/index.js",
         "dev": "node src/cli/index.js --help",
-        "docker:build": "docker build -t pushguardian:latest .",
+        "docker:build": "docker build -t push-guardian:latest .",
         "docker:dev": "docker-compose up test",
         "docker:coverage": "docker-compose up coverage",
-        "docker:run": "docker run --rm -v $(pwd):/workspace pushguardian:latest",
-        "docker:validate": "docker-compose run --rm pushguardian validate"
+        "docker:run": "docker run --rm -v $(pwd):/workspace push-guardian:latest",
+        "docker:validate": "docker-compose run --rm push-guardian validate"
     },
     "keywords": [],
     "author": "",

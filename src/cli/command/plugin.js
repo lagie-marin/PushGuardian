@@ -5,7 +5,7 @@ const chalk = getChalk();
 
 module.exports = {
     name: 'plugin',
-    description: 'Gestion des plugins PushGuardian (list, commands, run, enable, disable, help)',
+    description: 'Gestion des plugins push-guardian (list, commands, run, enable, disable, help)',
     arguments: [
         {
             name: '<action>',
@@ -64,7 +64,7 @@ async function pluginCommand(args, options) {
 async function handleEnable(pluginName) {
     if (!pluginName) {
         console.log(chalk.red('Nom du plugin requis'));
-        console.log(chalk.yellow('Usage: pushguardian plugin enable <nom>'));
+        console.log(chalk.yellow('Usage: push-guardian plugin enable <nom>'));
         return;
     }
 
@@ -77,7 +77,7 @@ async function handleEnable(pluginName) {
 async function handleDisable(pluginName) {
     if (!pluginName) {
         console.log(chalk.red('Nom du plugin requis'));
-        console.log(chalk.yellow('Usage: pushguardian plugin disable <nom>'));
+        console.log(chalk.yellow('Usage: push-guardian plugin disable <nom>'));
         return;
     }
 
@@ -104,8 +104,8 @@ function handleCommands() {
 async function handleRun(runArgs, options) {
     if (!runArgs || runArgs.length === 0) {
         console.log(chalk.red('Nom de commande requis'));
-        console.log(chalk.yellow('Usage: pushguardian plugin run <commande> [args...]'));
-        console.log(chalk.yellow('   ou: pushguardian plugin run <plugin> <commande> [args...]'));
+        console.log(chalk.yellow('Usage: push-guardian plugin run <commande> [args...]'));
+        console.log(chalk.yellow('   ou: push-guardian plugin run <plugin> <commande> [args...]'));
         return;
     }
 
@@ -129,7 +129,7 @@ async function handleRun(runArgs, options) {
 
         if (matches.length === 0) {
             console.log(chalk.red(`Commande plugin introuvable: ${commandName}`));
-            console.log(chalk.yellow('Utilisez: pushguardian plugin commands'));
+            console.log(chalk.yellow('Utilisez: push-guardian plugin commands'));
             return;
         }
 
@@ -137,7 +137,7 @@ async function handleRun(runArgs, options) {
             const plugins = [...new Set(matches.map((m) => m.plugin))].join(', ');
             console.log(chalk.red(`Commande ambiguë: ${commandName}`));
             console.log(chalk.yellow(`Plugins correspondants: ${plugins}`));
-            console.log(chalk.yellow(`Utilisez: pushguardian plugin run <plugin> ${commandName} [args...]`));
+            console.log(chalk.yellow(`Utilisez: push-guardian plugin run <plugin> ${commandName} [args...]`));
             return;
         }
 
@@ -158,8 +158,8 @@ async function handleRun(runArgs, options) {
  * Affiche l'aide
  */
 function displayHelp() {
-    console.log(chalk.bold('\nGestion des plugins PushGuardian\n'));
-    console.log(chalk.cyan('Usage:') + ' pushguardian plugin <action> [options]\n');
+    console.log(chalk.bold('\nGestion des plugins push-guardian\n'));
+    console.log(chalk.cyan('Usage:') + ' push-guardian plugin <action> [options]\n');
     console.log(chalk.bold('Actions disponibles:\n'));
     console.log('  ' + chalk.green('enable <nom>') + '       - Active un plugin');
     console.log('  ' + chalk.green('disable <nom>') + '      - Desactive un plugin');

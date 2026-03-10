@@ -36,7 +36,7 @@ module.exports = {
             }
 
             if (!config.mirroring) {
-                console.log(chalk.red('❌ Configuration de mise en miroir manquante dans pushguardian.config.json'));
+                console.log(chalk.red('❌ Configuration de mise en miroir manquante dans push-guardian.config.json'));
                 process.exit(1);
             }
 

@@ -6,7 +6,7 @@ jest.mock('fs');
 const configManager = require('../../src/core/configManager');
 
 describe('Core - configManager', () => {
-    const mockConfigPath = path.resolve(process.cwd(), 'pushguardian.config.json');
+    const mockConfigPath = path.resolve(process.cwd(), 'push-guardian.config.json');
     const originalConsoleError = console.error;
     const originalProcessExit = process.exit;
 
@@ -173,7 +173,7 @@ describe('Core - configManager', () => {
                 const actual = jest.requireActual('path');
                 return {
                     ...actual,
-                    resolve: jest.fn(() => '/tmp/outside/pushguardian.config.json')
+                    resolve: jest.fn(() => '/tmp/outside/push-guardian.config.json')
                 };
             });
 

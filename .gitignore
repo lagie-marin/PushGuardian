@@ -1,11 +1,11 @@
 node_modules/
 SUIVIE.md
-pushguardian.config.json
+push-guardian.config.json
 eslint.config.js
 .prettierrc
 coverage
-.pushguardian-plugins.json
-.pushguardian-cache/
+.push-guardian-plugins.json
+.push-guardian-cache/
 .review-apps/
 performance-report.json
 .env

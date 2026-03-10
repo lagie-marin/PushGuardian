@@ -3,7 +3,7 @@ const { getChalk } = require('../../src/utils/chalk-wrapper');
 const chalk = getChalk();
 
 /**
- * Plugin d'exemple pour PushGuardian v2
+ * Plugin d'exemple pour push-guardian v2
  * Démontre comment créer un plugin avec des commandes personnalisées
  */
 class ExamplePlugin extends BasePlugin {

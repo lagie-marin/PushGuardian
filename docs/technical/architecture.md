@@ -1,13 +1,13 @@
-# Architecture PushGuardian
+# Architecture push-guardian
 
 ## Vue d'ensemble
 
-PushGuardian est un outil de validation de code et de gestion de workflow Git structuré en modules indépendants.
+push-guardian est un outil de validation de code et de gestion de workflow Git structuré en modules indépendants.
 
 ## Structure du projet
 
 ```
-PushGuardian/
+push-guardian/
 ├── src/
 │   ├── cli/                    # Interface en ligne de commande
 │   │   ├── index.js           # Point d'entrée CLI
@@ -128,7 +128,7 @@ Commit Git
   ↓
 Hook pre-commit
   ↓
-Validation PushGuardian
+Validation push-guardian
   ↓
 ├─ Cache check
 ├─ Plugin hooks (pre-validate)
@@ -177,7 +177,7 @@ Review App accessible
 
 ## Configuration
 
-### Fichier principal: `pushguardian.config.json`
+### Fichier principal: `push-guardian.config.json`
 
 ```json
 {
@@ -217,15 +217,15 @@ GITLAB_TOKEN=xxx
 BITBUCKET_TOKEN=xxx
 
 # Mirroring
-PUSHGUARDIAN_MIRROR_SOURCE_PLATFORM=github
-PUSHGUARDIAN_MIRROR_TARGET_PLATFORM=gitlab
+push-guardian_MIRROR_SOURCE_PLATFORM=github
+push-guardian_MIRROR_TARGET_PLATFORM=gitlab
 
 # Review Apps
 VERCEL_TOKEN=xxx
 NETLIFY_AUTH_TOKEN=xxx
 
 # Performance
-PUSHGUARDIAN_ENABLE_METRICS=true
+push-guardian_ENABLE_METRICS=true
 ```
 
 ## Extensibilité
@@ -254,7 +254,7 @@ module.exports = MyPlugin;
 ### Enregistrer le plugin
 
 ```bash
-npx pushguardian plugin --load ./plugins
+npx push-guardian plugin --load ./plugins
 ```
 
 ## Tests
@@ -280,7 +280,7 @@ Le système de performance collecte automatiquement:
 
 Analyse:
 ```bash
-npx pushguardian performance --analyze
+npx push-guardian performance --analyze
 ```
 
 ## Sécurité

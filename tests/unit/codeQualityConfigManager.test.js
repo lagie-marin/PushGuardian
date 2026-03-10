@@ -172,7 +172,7 @@ describe('Core codeQualityTools - configManager', () => {
         test('doit analyser et charger un module de config réel', async () => {
             fs.existsSync.mockReturnValue(true);
             path.resolve.mockReturnValue(
-                '/home/lagie/Epitech/projets/hub/PushGuardian/tests/fixtures/mock-eslint-config-single.js'
+                '/home/lagie/Epitech/projets/hub/push-guardian/tests/fixtures/mock-eslint-config-single.js'
             );
 
             const result = await configManager.loadExistingConfig('eslint.config.js');
@@ -186,7 +186,7 @@ describe('Core codeQualityTools - configManager', () => {
         test('doit traiter une configuration exportée en tableau', async () => {
             fs.existsSync.mockReturnValue(true);
             path.resolve.mockReturnValue(
-                '/home/lagie/Epitech/projets/hub/PushGuardian/tests/fixtures/mock-eslint-config-array.js'
+                '/home/lagie/Epitech/projets/hub/push-guardian/tests/fixtures/mock-eslint-config-array.js'
             );
 
             const result = await configManager.loadExistingConfig('eslint.config.js');

@@ -4,13 +4,13 @@ const { getChalk } = require('../../utils/chalk-wrapper');
 const chalk = getChalk();
 
 /**
- * Registre central des plugins PushGuardian v2
+ * Registre central des plugins push-guardian v2
  * Gère l'installation, le chargement et la configuration des plugins
  */
 class PluginRegistry {
     constructor() {
         this.plugins = new Map();
-        this.configPath = path.join(process.cwd(), '.pushguardian-plugins.json');
+        this.configPath = path.join(process.cwd(), '.push-guardian-plugins.json');
         this.pluginsDir = path.join(process.cwd(), 'plugins');
         this.loadAllPlugins();
     }

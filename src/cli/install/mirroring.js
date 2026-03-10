@@ -123,7 +123,7 @@ function createMirroringConfig(selectedPlatforms, credentials, defaultSettings) 
         }
     });
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
 
     try {
         let existingConfig = {};
@@ -172,7 +172,7 @@ async function installMirroringTools() {
 
     loadEnv();
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
     if (fs.existsSync(configFilePath)) {
         const existingContent = fs.readFileSync(configFilePath, 'utf8');
         const existingConfig = JSON.parse(existingContent);
@@ -225,10 +225,10 @@ async function installMirroringTools() {
     createMirroringConfig(selectedPlatforms, credentials, defaultSettings);
     console.log(chalk.green('✅ Installation du système de mirroring terminée!'));
     console.log(
-        chalk.blue('💡 Utilisez la commande "pushguardian mirror" pour effectuer des opérations de mirroring.')
+        chalk.blue('💡 Utilisez la commande "push-guardian mirror" pour effectuer des opérations de mirroring.')
     );
     console.log(
-        chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables PUSHGUARDIAN_MIRROR_*).')
+        chalk.blue('💡 Les valeurs par défaut ont été sauvegardées dans .env (variables push-guardian_MIRROR_*).')
     );
 }
 

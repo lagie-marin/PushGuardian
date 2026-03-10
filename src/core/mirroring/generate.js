@@ -30,18 +30,18 @@ jobs:
         path: .
 
     steps:
-    - name: Checkout PushGuardian
+    - name: Checkout push-guardian
       uses: actions/checkout@v4
       with:
-        repository: lagie-marin/PushGuardian
-        path: pushguardian
+        repository: lagie-marin/push-guardian
+        path: push-guardian
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22.20.0'
         cache: 'npm'
-        cache-dependency-path: pushguardian/package-lock.json
+        cache-dependency-path: push-guardian/package-lock.json
 
     - name: Install specific npm version
       run: |
@@ -57,12 +57,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd pushguardian
+        cd push-guardian
         npm ci
 
-    - name: Link PushGuardian globally
+    - name: Link push-guardian globally
       run: |
-        cd pushguardian
+        cd push-guardian
         npm link
 
     - name: Execute mirror command
@@ -70,7 +70,7 @@ jobs:
         CURRENT_REPO="\${{ github.event.repository.name }}"
         CURRENT_OWNER="\${{ github.event.repository.owner.login }}"
         
-        mirror_cmd="npx pushguardian mirror"
+        mirror_cmd="npx push-guardian mirror"
         mirror_cmd="$mirror_cmd --source \${{ vars.SOURCE_PLATFORM }}"
         mirror_cmd="$mirror_cmd --target \${{ vars.TARGET_PLATFORM }}"
         mirror_cmd="$mirror_cmd --source-repo $CURRENT_REPO"

@@ -19,6 +19,12 @@ class PerformanceAnalyzer {
     async analyze() {
         console.log(chalk.blue('Analyse des performances en cours...'));
 
+        // Démarrer la collecte de métriques
+        metricsCollector.start();
+
+        // Simuler une charge pour capturer les métriques
+        await this.simulateLoad();
+
         const stats = metricsCollector.getStatistics();
         const report = this.generateReport(stats);
 
@@ -29,17 +35,29 @@ class PerformanceAnalyzer {
     }
 
     /**
+     * Simule une charge pour capturer les métriques système
+     */
+    async simulateLoad() {
+        // Attendre un peu pour que le monitoring capture des métriques
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    /**
      * Génère un rapport détaillé
      * @param {Object} stats - Statistiques collectées
      * @returns {Object} - Rapport généré
      */
     generateReport(stats) {
+        // Récupérer les métriques complètes avec system
+        const fullMetrics = metricsCollector.getMetrics();
+
         return {
             timestamp: new Date().toISOString(),
             summary: {
                 totalDuration: stats.totalDuration,
                 totalOperations: stats.validation.count + stats.hooks.count + stats.linting.count
             },
+            system: fullMetrics.system,
             validation: stats.validation,
             hooks: stats.hooks,
             linting: stats.linting,
@@ -84,11 +102,20 @@ class PerformanceAnalyzer {
      */
     displayReport(report) {
         console.log(chalk.bold('\nRapport de Performance\n'));
-        console.log(chalk.blue('═'.repeat(50)));
+        console.log(chalk.blue('─'.repeat(50)));
 
         console.log(chalk.bold('\nResume:'));
         console.log(`  Durée totale: ${(report.summary.totalDuration / 1000).toFixed(2)}s`);
         console.log(`  Opérations: ${report.summary.totalOperations}`);
+
+        if (report.system) {
+            console.log(chalk.bold('\nSystème:'));
+            console.log(`  RAM min: ${report.system.memory.min.toFixed(2)} MB`);
+            console.log(`  RAM max: ${report.system.memory.max.toFixed(2)} MB`);
+            console.log(`  RAM moyenne: ${report.system.memory.avg.toFixed(2)} MB`);
+            console.log(`  Threads actifs: ${report.system.threads.active}`);
+            console.log(`  Ressources actives: ${report.system.threads.resources}`);
+        }
 
         if (report.validation.count > 0) {
             console.log(chalk.bold('\nValidation:'));
@@ -109,7 +136,7 @@ class PerformanceAnalyzer {
             console.log(`  ${rec}`);
         });
 
-        console.log(chalk.blue('\n═'.repeat(50)));
+        console.log(chalk.blue('─'.repeat(50)));
         console.log(chalk.green(`\nRapport sauvegardé: ${this.reportPath}\n`));
     }
 

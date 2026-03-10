@@ -1,15 +1,15 @@
-# Guide des Plugins PushGuardian
+# Guide des Plugins push-guardian
 
 ## Introduction
 
-Le système de plugins permet d'étendre les fonctionnalités de PushGuardian sans modifier le code source principal.
+Le système de plugins permet d'étendre les fonctionnalités de push-guardian sans modifier le code source principal.
 
 ## Création d'un plugin
 
 ### Structure de base
 
 ```javascript
-const BasePlugin = require('pushguardian/core/plugins/basePlugin');
+const BasePlugin = require('push-guardian/core/plugins/basePlugin');
 
 class MonPlugin extends BasePlugin {
     constructor() {
@@ -115,7 +115,7 @@ class MonPlugin extends BasePlugin {
 
 ```bash
 # Configurer un plugin
-npx pushguardian plugin --config mon-plugin '{"level": "debug"}'
+npx push-guardian plugin --config mon-plugin '{"level": "debug"}'
 ```
 
 ## Exemples de plugins
@@ -123,7 +123,7 @@ npx pushguardian plugin --config mon-plugin '{"level": "debug"}'
 ### Plugin de notification Slack
 
 ```javascript
-const BasePlugin = require('pushguardian/core/plugins/basePlugin');
+const BasePlugin = require('push-guardian/core/plugins/basePlugin');
 const https = require('https');
 
 class SlackNotificationPlugin extends BasePlugin {
@@ -167,7 +167,7 @@ module.exports = SlackNotificationPlugin;
 ### Plugin de statistiques
 
 ```javascript
-const BasePlugin = require('pushguardian/core/plugins/basePlugin');
+const BasePlugin = require('push-guardian/core/plugins/basePlugin');
 const fs = require('fs');
 
 class StatsPlugin extends BasePlugin {
@@ -207,7 +207,7 @@ module.exports = StatsPlugin;
 ### Plugin de validation personnalisée
 
 ```javascript
-const BasePlugin = require('pushguardian/core/plugins/basePlugin');
+const BasePlugin = require('push-guardian/core/plugins/basePlugin');
 
 class CustomValidationPlugin extends BasePlugin {
     constructor() {
@@ -257,13 +257,13 @@ module.exports = CustomValidationPlugin;
 ### Depuis un répertoire
 
 ```bash
-npx pushguardian plugin --load ./plugins
+npx push-guardian plugin --load ./plugins
 ```
 
 ### Programmatiquement
 
 ```javascript
-const pluginRegistry = require('pushguardian/core/plugins/pluginRegistry');
+const pluginRegistry = require('push-guardian/core/plugins/pluginRegistry');
 const MonPlugin = require('./mon-plugin');
 
 const plugin = new MonPlugin();
@@ -275,23 +275,23 @@ pluginRegistry.register(plugin);
 ### Lister les plugins
 
 ```bash
-npx pushguardian plugin --list
+npx push-guardian plugin --list
 ```
 
 ### Activer/Désactiver
 
 ```bash
 # Activer
-npx pushguardian plugin --enable mon-plugin
+npx push-guardian plugin --enable mon-plugin
 
 # Désactiver
-npx pushguardian plugin --disable mon-plugin
+npx push-guardian plugin --disable mon-plugin
 ```
 
 ### Informations sur un plugin
 
 ```bash
-npx pushguardian plugin --info mon-plugin
+npx push-guardian plugin --info mon-plugin
 ```
 
 ## Bonnes pratiques
@@ -380,11 +380,11 @@ describe('MonPlugin', () => {
 
 ```json
 {
-  "name": "pushguardian-plugin-mon-plugin",
+  "name": "push-guardian-plugin-mon-plugin",
   "version": "1.0.0",
   "main": "index.js",
   "peerDependencies": {
-    "pushguardian": "^2.0.0"
+    "push-guardian": "^2.0.0"
   }
 }
 ```
@@ -392,7 +392,7 @@ describe('MonPlugin', () => {
 ### Installation
 
 ```bash
-npm install pushguardian-plugin-mon-plugin
+npm install push-guardian-plugin-mon-plugin
 ```
 
 ## Limitations
@@ -405,5 +405,5 @@ npm install pushguardian-plugin-mon-plugin
 ## Support
 
 Pour toute question ou problème:
-- GitHub Issues: https://github.com/lagie-marin/PushGuardian/issues
-- Documentation: https://pushguardian.dev/docs/plugins
+- GitHub Issues: https://github.com/lagie-marin/push-guardian/issues
+- Documentation: https://push-guardian.dev/docs/plugins

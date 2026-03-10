@@ -23,7 +23,7 @@ const languageTools = require('../../src/core/codeQualityTools/languageTools');
 const interactiveMenu = require('../../src/core/interactiveMenu/interactiveMenu');
 
 describe('CLI Install - codeQualityTools', () => {
-    const mockConfigPath = 'pushguardian.config.json';
+    const mockConfigPath = 'push-guardian.config.json';
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -207,7 +207,7 @@ describe('CLI Install - codeQualityTools', () => {
             );
         });
 
-        test('doit créer config PushGuardian', async () => {
+        test('doit créer config push-guardian', async () => {
             await codeQualityTools.installCodeQualityTools(false, ['JavaScript (ESLint)']);
 
             const configWrites = fs.writeFileSync.mock.calls.filter(

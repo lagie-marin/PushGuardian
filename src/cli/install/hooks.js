@@ -20,7 +20,7 @@ function createHooksConfig() {
         }
     };
 
-    const configFilePath = 'pushguardian.config.json';
+    const configFilePath = 'push-guardian.config.json';
 
     try {
         let config = {};
@@ -66,8 +66,8 @@ function installHooks(hooks = ['pre-push'], force = false) {
         }
 
         const hookContent = `#!/bin/sh
-# PushGuardian ${hook} hook
-npx pushguardian validate --hooks ${hook} ${hook == 'commit-msg' ? '"$(cat "$1")"' : ''} || exit 1
+# push-guardian ${hook} hook
+npx push-guardian validate --hooks ${hook} ${hook == 'commit-msg' ? '"$(cat "$1")"' : ''} || exit 1
 `;
 
         try {
